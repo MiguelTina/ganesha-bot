@@ -1,0 +1,24 @@
+[
+  {
+    "nombre": "Impermeabilizante Fester Acriton Terracota 19L",
+    "categoria": "impermeabilizantes",
+    "alias": ["impermeabilizante", "fester", "acriton"],
+    "descripcion": "Impermeabilizante acrílico base agua para azoteas, cubre 70 m².",
+    "caracteristicas": "Este impermeabilizante color terracota tiene una duracion de hasta 5 años, ayuda proteger tu hogar delclima y por su color aumenta la temperatura al menos 5º dentro de tu hogar.",
+    "precio": 1250
+  },
+  {
+    "nombre": "Pintura Vinílica Blanca 19L",
+    "categoria": "pinturas",
+    "alias": ["pintura", "vinílica", "blanca"],
+    "descripcion": "Pintura vinílica ideal para interiores, excelente cobertura.",
+    "precio": 890
+  },
+  {
+    "nombre": "Esmalte Sintético Negro 4L",
+    "categoria": "esmaltes",
+    "alias": ["esmalte", "negro", "sintético"],
+    "descripcion": "Esmalte de alto brillo para metal y madera.",
+    "precio": 580
+  }
+]
