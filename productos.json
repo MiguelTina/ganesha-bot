@@ -4,8 +4,9 @@
     "categoria": "impermeabilizantes",
     "alias": ["impermeabilizante", "fester", "acriton"],
     "descripcion": "Impermeabilizante acrílico base agua para azoteas, cubre 70 m².",
-    "caracteristicas": "Este impermeabilizante color terracota tiene una duracion de hasta 5 años, ayuda proteger tu hogar delclima y por su color aumenta la temperatura al menos 5º dentro de tu hogar.",
-    "precio": 1250
+    "caracteristicas": "Este impermeabilizante color terracota tiene una duración de hasta 5 años, ayuda a proteger tu hogar del clima y por su color, aumenta la temperatura.",
+    "precio": 1250,
+    "imagen": "https://drive.google.com/uc?export=view&id=1dJXmF_lKorhaqM_bllZ0JYzegauAVd9a"
   },
   {
     "nombre": "Pintura Vinílica Blanca 19L",

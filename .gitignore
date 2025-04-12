@@ -1,0 +1,13 @@
+# Ignorar sesiones de WhatsApp
+tokens/
+
+# Ignorar archivos de entorno (como claves API)
+.env
+
+# Ignorar carpeta de módulos de Node.js
+node_modules/
+
+# Archivos temporales de sistema
+*.log
+.DS_Store
+Thumbs.db
