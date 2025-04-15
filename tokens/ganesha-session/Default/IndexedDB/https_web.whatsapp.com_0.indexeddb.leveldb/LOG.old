@@ -1,24 +1,34 @@
-2025/04/14-20:13:50.400 447a Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2025/04/14-20:13:50.401 447a Recovering log #318
-2025/04/14-20:13:50.425 447a Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000318.log 
-2025/04/14-20:13:50.425 447a Delete type=2 #314
-2025/04/14-20:13:50.427 447a Delete type=2 #319
-2025/04/14-20:13:50.427 447a Delete type=2 #315
-2025/04/14-20:13:50.427 447a Delete type=2 #316
-2025/04/14-20:13:50.427 447a Delete type=2 #313
-2025/04/14-20:13:51.694 447e Level-0 table #326: started
-2025/04/14-20:13:51.732 447e Level-0 table #326: 270331 bytes OK
-2025/04/14-20:13:51.734 447e Delete type=0 #318
-2025/04/14-20:13:51.736 4479 Manual compaction at level-0 from '\x00B\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00C\x00\x00\x00' @ 0 : 0; will stop at (end)
-2025/04/14-20:13:57.853 4479 Compacting 1@1 + 4@2 files
-2025/04/14-20:13:58.121 4479 Generated table #327@1: 84905 keys, 2234085 bytes
-2025/04/14-20:13:58.248 4479 Generated table #328@1: 47989 keys, 2236964 bytes
-2025/04/14-20:13:58.419 4479 Generated table #329@1: 57843 keys, 2213026 bytes
-2025/04/14-20:13:58.458 4479 Generated table #330@1: 20095 keys, 422727 bytes
-2025/04/14-20:13:58.459 4479 Compacted 1@1 + 4@2 files => 7106802 bytes
-2025/04/14-20:13:58.462 4479 compacted to: files[ 0 0 4 0 0 0 0 ]
-2025/04/14-20:13:58.462 4479 Delete type=2 #326
-2025/04/14-20:13:58.463 4479 Delete type=2 #322
-2025/04/14-20:13:58.463 4479 Delete type=2 #320
-2025/04/14-20:13:58.463 4479 Delete type=2 #323
-2025/04/14-20:13:58.463 4479 Delete type=2 #321
+2025/04/15-12:40:46.577 4933 Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/04/15-12:40:46.577 4933 Recovering log #411
+2025/04/15-12:40:46.581 4933 Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000411.log 
+2025/04/15-12:40:47.616 4933 Compacting 1@1 + 4@2 files
+2025/04/15-12:40:47.801 4933 Level-0 table #416: started
+2025/04/15-12:40:47.808 4933 Level-0 table #416: 17694 bytes OK
+2025/04/15-12:40:47.810 4933 Delete type=0 #411
+2025/04/15-12:40:47.871 4933 Generated table #414@1: 84351 keys, 2233475 bytes
+2025/04/15-12:40:47.995 4933 Generated table #417@1: 67506 keys, 2266683 bytes
+2025/04/15-12:40:48.086 4933 Generated table #418@1: 24776 keys, 2176076 bytes
+2025/04/15-12:40:48.203 4933 Generated table #419@1: 60695 keys, 1253824 bytes
+2025/04/15-12:40:48.204 4933 Compacted 1@1 + 4@2 files => 7930058 bytes
+2025/04/15-12:40:48.205 4933 compacted to: files[ 1 0 4 0 0 0 0 ]
+2025/04/15-12:40:48.206 4933 Manual compaction at level-0 from '\x00O\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00P\x00\x00\x00' @ 0 : 0; will stop at '\x00O\x00\x00\x05' @ 1675129 : 1
+2025/04/15-12:40:48.207 4933 Compacting 1@0 + 0@1 files
+2025/04/15-12:40:48.210 4933 Generated table #420@0: 397 keys, 9232 bytes
+2025/04/15-12:40:48.212 4933 Compacted 1@0 + 0@1 files => 9232 bytes
+2025/04/15-12:40:48.214 4933 compacted to: files[ 0 1 4 0 0 0 0 ]
+2025/04/15-12:40:48.215 4933 Delete type=2 #416
+2025/04/15-12:40:48.215 4932 Manual compaction at level-0 from '\x00O\x00\x00\x05' @ 1675129 : 1 .. '\x00P\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/04/15-12:40:53.102 4933 Compacting 1@1 + 2@2 files
+2025/04/15-12:40:53.437 4933 Generated table #421@1: 84231 keys, 2232211 bytes
+2025/04/15-12:40:53.639 4933 Generated table #422@1: 67700 keys, 2265171 bytes
+2025/04/15-12:40:53.647 4933 Generated table #423@1: 8 keys, 6106 bytes
+2025/04/15-12:40:53.647 4933 Compacted 1@1 + 2@2 files => 4503488 bytes
+2025/04/15-12:40:53.650 4933 compacted to: files[ 0 0 5 0 0 0 0 ]
+2025/04/15-12:40:53.652 4933 Delete type=2 #414
+2025/04/15-12:40:53.653 4933 Delete type=2 #409
+2025/04/15-12:40:53.653 4933 Delete type=2 #412
+2025/04/15-12:40:53.653 4933 Delete type=2 #407
+2025/04/15-12:40:53.654 4933 Delete type=2 #406
+2025/04/15-12:40:53.654 4933 Delete type=2 #417
+2025/04/15-12:40:53.654 4933 Delete type=2 #408
+2025/04/15-12:40:53.654 4933 Delete type=2 #420
