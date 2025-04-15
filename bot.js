@@ -105,6 +105,58 @@ async function start(client) {
       return;
     }
 
+    // --- Comando: Eliminar/Quitar producto del carrito ---
+    const matchEliminar = consulta.match(/(?:eliminar|quitar) (.+)/i);
+    if (matchEliminar) {
+      const nombreProducto = matchEliminar[1].trim();
+      let carrito = sesiones[message.from].carrito;
+      const index = carrito.findIndex(item => new RegExp(nombreProducto, 'i').test(item.nombre));
+      if (index !== -1) {
+        const eliminado = carrito[index];
+        carrito.splice(index, 1);
+        await client.sendText(message.from, `Listo, he eliminado "${eliminado.nombre}" de tu carrito.`);
+        if (carrito.length) {
+          const resumen = carrito.map((p, i) => `${i + 1}. ${p.nombre} - $${p.precio} x ${p.cantidad}`).join('\n');
+          const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+          await client.sendText(message.from, `🛒 Tu carrito actualizado:\n${resumen}\n\n🧾 Total: $${total.toFixed(2)} MXN`);
+        } else {
+          await client.sendText(message.from, 'Ahora tu carrito está vacío.');
+        }
+      } else {
+        await client.sendText(message.from, `No encontré ese producto en tu carrito. Puedes revisar con 'resumen del carrito'.`);
+      }
+      return;
+    }
+
+    // --- Comando: Cambiar cantidad de producto en el carrito ---
+    const matchCambiar = consulta.match(/cambiar cantidad (.+) a (\d+)/i);
+    if (matchCambiar) {
+      const nombreProducto = matchCambiar[1].trim();
+      const nuevaCantidad = parseInt(matchCambiar[2]);
+      let carrito = sesiones[message.from].carrito;
+      const index = carrito.findIndex(item => new RegExp(nombreProducto, 'i').test(item.nombre));
+      if (index !== -1) {
+        if (nuevaCantidad <= 0) {
+          const eliminado = carrito[index];
+          carrito.splice(index, 1);
+          await client.sendText(message.from, `Como la cantidad es 0, he eliminado "${eliminado.nombre}" de tu carrito.`);
+        } else {
+          carrito[index].cantidad = nuevaCantidad;
+          await client.sendText(message.from, `Perfecto, ahora tienes ${nuevaCantidad} x ${carrito[index].nombre} en tu carrito.`);
+        }
+        if (carrito.length) {
+          const resumen = carrito.map((p, i) => `${i + 1}. ${p.nombre} - $${p.precio} x ${p.cantidad}`).join('\n');
+          const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+          await client.sendText(message.from, `🛒 Tu carrito actualizado:\n${resumen}\n\n🧾 Total: $${total.toFixed(2)} MXN`);
+        } else {
+          await client.sendText(message.from, 'Ahora tu carrito está vacío.');
+        }
+      } else {
+        await client.sendText(message.from, `No encontré ese producto en tu carrito. Puedes revisar con 'resumen del carrito'.`);
+      }
+      return;
+    }
+
     if (/resumen del carrito/.test(consulta)) {
       const carrito = sesiones[message.from].carrito;
       if (!carrito.length) {
