@@ -179,50 +179,188 @@ async function start(client) {
     }
 
     const matchCantidad = consulta.match(/agregar (\d+) (.+) al carrito/);
-    if (matchCantidad) {
-      const cantidad = parseInt(matchCantidad[1]);
-      const nombreProducto = matchCantidad[2];
+    // --- Comando: Agregar productos al carrito ---
+    if (/agregar (\d+) ([a-z0-9áéíóúüñ\s]+) al carrito/i.test(consulta)) {
+      const match = consulta.match(/agregar (\d+) ([a-z0-9áéíóúüñ\s]+) al carrito/i);
+      const cantidad = parseInt(match[1]);
+      const nombreProducto = match[2].trim();
       const producto = await coleccionProductos.findOne({ nombre: new RegExp(nombreProducto, 'i') });
-
       if (producto) {
-        sesiones[message.from].carrito.push({ ...producto, cantidad });
-        await client.sendText(message.from, `✅ He agregado ${cantidad} x ${producto.nombre} a tu carrito. ¿Te gustaría saber cómo aprovecharlo mejor o necesitas cotización de otro producto?`);
+        let carrito = sesiones[message.from].carrito;
+        let idx = carrito.findIndex(item => item._id.equals(producto._id));
+        if (idx !== -1) {
+          carrito[idx].cantidad += cantidad;
+        } else {
+          carrito.push({ ...producto, cantidad });
+        }
+        await client.sendText(message.from, `✅ He agregado ${cantidad} x ${producto.nombre} a tu carrito.`);
       } else {
         await client.sendText(message.from, `Por el momento no manejamos "${nombreProducto}" en nuestro catálogo. ¿Hay algún otro producto o necesidad en la que te pueda ayudar?`);
       }
       return;
     }
 
-    // --- Nueva lógica robusta: búsqueda previa de producto en cualquier mensaje ---
-    // Si el usuario menciona explícitamente un producto, buscar coincidencias antes de pasar a OpenAI
+    // --- Comando: Eliminar productos del carrito ---
+    if (/eliminar(\s+\d+)? ([a-z0-9áéíóúüñ\s]+) del carrito/i.test(consulta)) {
+      const match = consulta.match(/eliminar(\s+(\d+))? ([a-z0-9áéíóúüñ\s]+) del carrito/i);
+      const cantidad = match[2] ? parseInt(match[2]) : null;
+      const nombreProducto = match[3].trim();
+      let carrito = sesiones[message.from].carrito;
+      let idx = carrito.findIndex(item => new RegExp(nombreProducto, 'i').test(item.nombre));
+      if (idx !== -1) {
+        if (cantidad && carrito[idx].cantidad > cantidad) {
+          carrito[idx].cantidad -= cantidad;
+          await client.sendText(message.from, `Se eliminaron ${cantidad} x ${carrito[idx].nombre} del carrito. Quedan ${carrito[idx].cantidad}.`);
+        } else {
+          await client.sendText(message.from, `Se eliminó ${carrito[idx].nombre} del carrito.`);
+          carrito.splice(idx, 1);
+        }
+      } else {
+        await client.sendText(message.from, `Ese producto no está en tu carrito.`);
+      }
+      return;
+    }
+
+    // --- Comando: Cambiar cantidad de un producto ---
+    if (/cambiar cantidad de ([a-z0-9áéíóúüñ\s]+) a (\d+)/i.test(consulta)) {
+      const match = consulta.match(/cambiar cantidad de ([a-z0-9áéíóúüñ\s]+) a (\d+)/i);
+      const nombreProducto = match[1].trim();
+      const cantidad = parseInt(match[2]);
+      let carrito = sesiones[message.from].carrito;
+      let idx = carrito.findIndex(item => new RegExp(nombreProducto, 'i').test(item.nombre));
+      if (idx !== -1) {
+        carrito[idx].cantidad = cantidad;
+        await client.sendText(message.from, `La cantidad de ${carrito[idx].nombre} ahora es ${cantidad}.`);
+      } else {
+        await client.sendText(message.from, `Ese producto no está en tu carrito.`);
+      }
+      return;
+    }
+
+    // --- Comando: Ver resumen del carrito ---
+    if (/ver carrito|resumen del carrito/i.test(consulta)) {
+      let carrito = sesiones[message.from].carrito;
+      if (carrito.length === 0) {
+        await client.sendText(message.from, `Tu carrito está vacío.`);
+      } else {
+        let total = 0;
+        let resumen = carrito.map(item => {
+          total += item.precio * item.cantidad;
+          return `- ${item.nombre}: ${item.cantidad} x $${item.precio} = $${item.cantidad * item.precio}`;
+        }).join('\n');
+        await client.sendText(message.from, `🛒 Resumen de tu carrito:\n${resumen}\nTotal: $${total}`);
+      }
+      return;
+    }
+
+    // --- Comando: Vaciar carrito ---
+    if (/vaciar carrito/i.test(consulta)) {
+      sesiones[message.from].carrito = [];
+      await client.sendText(message.from, `Tu carrito ha sido vaciado.`);
+      return;
+    }
+
+    // --- Comando: Finalizar pedido ---
+    if (/finalizar pedido/i.test(consulta)) {
+      let carrito = sesiones[message.from].carrito;
+      if (carrito.length === 0) {
+        await client.sendText(message.from, `Tu carrito está vacío. Agrega productos antes de finalizar tu pedido.`);
+        return;
+      }
+      let total = 0;
+      let resumen = carrito.map(item => {
+        total += item.precio * item.cantidad;
+        return `- ${item.nombre}: ${item.cantidad} x $${item.precio} = $${item.cantidad * item.precio}`;
+      }).join('\n');
+      await client.sendText(message.from, `Vas a finalizar tu pedido con:\n${resumen}\nTotal: $${total}\n¿Confirmas tu pedido? Responde 'confirmar pedido' para continuar.`);
+      sesiones[message.from].esperandoConfirmacion = true;
+      return;
+    }
+
+    // --- Confirmar pedido ---
+    if (sesiones[message.from].esperandoConfirmacion && /confirmar pedido/i.test(consulta)) {
+      let carrito = sesiones[message.from].carrito;
+      let total = 0;
+      let resumen = carrito.map(item => {
+        total += item.precio * item.cantidad;
+        return `- ${item.nombre}: ${item.cantidad} x $${item.precio} = $${item.cantidad * item.precio}`;
+      }).join('\n');
+      // Aquí podrías guardar el pedido en la base de datos si lo deseas
+      await client.sendText(message.from, `✅ ¡Tu pedido ha sido registrado!\n${resumen}\nTotal: $${total}\nPronto nos pondremos en contacto contigo para coordinar la entrega.`);
+      sesiones[message.from].carrito = [];
+      sesiones[message.from].esperandoConfirmacion = false;
+      return;
+    }
+
+    // --- FLUJO SIMPLIFICADO DE CATÁLOGO ---
+    // Si el usuario pide un producto/categoría, mostrar opciones
+    let nombreBuscado = null;
+    let productoDirecto = null;
+
     const consultaProducto = consulta.match(/(busco|quiero|necesito|tienes|manejas|vendes)\s+([a-z0-9áéíóúüñ\s]+)/i);
     if (consultaProducto) {
-      const nombreBuscado = consultaProducto[2].trim();
-      // Buscar por nombre, alias o categoría
-      const productoDirecto = await coleccionProductos.findOne({
+      nombreBuscado = consultaProducto[2].trim();
+    }
+    if (!nombreBuscado && consulta.match(/^([a-z0-9áéíóúüñ\s]+)\?$/i)) {
+      nombreBuscado = consulta.replace(/[¿?]/g, '').trim();
+    }
+    if (!nombreBuscado && consulta.match(/^([a-z0-9áéíóúüñ\s]+)$/i)) {
+      nombreBuscado = consulta.trim();
+    }
+    // Excluir palabras de área/superficie
+    const palabrasArea = ['interior', 'exterior', 'pared', 'paredes', 'techo', 'madera', 'metal', 'hogar', 'negocio', 'azotea'];
+    if (nombreBuscado && palabrasArea.includes(nombreBuscado.toLowerCase())) {
+      // Ignorar, no es producto
+      nombreBuscado = null;
+    }
+    if (nombreBuscado) {
+      // Buscar todas las coincidencias en el catálogo
+      const productosCoinciden = await coleccionProductos.find({
         $or: [
-          { nombre: new RegExp(nombreBuscado, 'i') },
-          { alias: { $elemMatch: { $regex: nombreBuscado, $options: 'i' } } },
-          { categoria: new RegExp(nombreBuscado, 'i') }
+          { nombre: { $regex: nombreBuscado, $options: 'i' } },
+          { categoria: { $regex: nombreBuscado, $options: 'i' } }
         ]
-      });
-      if (!productoDirecto) {
+      }).toArray();
+      if (productosCoinciden.length > 0) {
+        const lista = productosCoinciden.map(p => `- ${p.nombre}`).join('\n');
+        await client.sendText(message.from, `Perfecto, manejo estas opciones:\n${lista}\nSi quieres saber el precio o la descripción de alguna opción, dímelo.`);
+        return;
+      } else {
         await client.sendText(message.from, `Lamentablemente en este momento no manejamos "${nombreBuscado}" en nuestro catálogo. ¿Hay algún otro producto o necesidad en la que te pueda ayudar?`);
         return;
       }
     }
 
-    // Solo sugerir productos si el usuario hace una consulta específica, no en el primer mensaje
-    if (consulta.length < 4 || /catálogo|productos|lista/i.test(consulta)) {
-      await client.sendText(message.from, '¿En qué producto o necesidad específica te gustaría que te ayude hoy? Puedes decirme qué buscas y te asesoro personalmente.');
+    // Si el usuario pregunta por precio o descripción de una opción específica
+    const matchPrecio = consulta.match(/(precio|cu[aá]nto cuesta|cu[aá]l es el precio) (de |del |de la )?([a-z0-9áéíóúüñ\s]+)/i);
+    if (matchPrecio) {
+      const nombreProducto = matchPrecio[3].trim();
+      const producto = await coleccionProductos.findOne({ nombre: new RegExp(nombreProducto, 'i') });
+      if (producto) {
+        await client.sendText(message.from, `La opción ${producto.nombre} tiene un costo de $${producto.precio}. ¿Le gustaría agregarla al carrito?`);
+      } else {
+        await client.sendText(message.from, `No encontré la opción "${nombreProducto}" en el catálogo.`);
+      }
+      return;
+    }
+    const matchDescripcion = consulta.match(/(descripcion|descripción|qué es|información de|dame detalles de) (de |del |de la )?([a-z0-9áéíóúüñ\s]+)/i);
+    if (matchDescripcion) {
+      const nombreProducto = matchDescripcion[3].trim();
+      const producto = await coleccionProductos.findOne({ nombre: new RegExp(nombreProducto, 'i') });
+      if (producto) {
+        await client.sendText(message.from, `${producto.nombre}: ${producto.descripcion}. ¿Le gustaría agregarlo al carrito?`);
+      } else {
+        await client.sendText(message.from, `No encontré la opción "${nombreProducto}" en el catálogo.`);
+      }
       return;
     }
 
-    const productos = await coleccionProductos.find().toArray();
     const prompt = `Eres un asistente virtual de Ganesha, experto en ventas consultivas y atención al cliente. Tu objetivo es ayudar, escuchar y guiar al usuario como un vendedor profesional (inspirado en Brian Tracy).
 
 Catálogo de productos:
 ${productos.map(p => `- ${p.nombre}: ${p.descripcion}, Precio: $${p.precio}`).join('\n')}
+
+${contextoMemoria}
 
 Reglas para la conversación:
 - Siempre haz preguntas abiertas y de calificación antes de recomendar productos (por ejemplo: ¿Para qué área o superficie es?, ¿Tienes alguna preferencia de marca o color?, ¿Cuál es tu presupuesto aproximado?, ¿Es para uso interior o exterior?).
