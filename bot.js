@@ -53,10 +53,9 @@ async function start(client) {
 
       if (clienteExistente) {
         sesiones[message.from].nombre = clienteExistente.nombre;
-        await client.sendText(message.from, `¡Qué gusto saludarte de nuevo, ${clienteExistente.nombre}! 😉`);
-        await client.sendText(message.from, '¿En qué te puedo ayudar hoy? ¿Buscas algo específico?');
+        await client.sendText(message.from, `¡Hola ${clienteExistente.nombre}! ¿Qué producto te gustaría cotizar hoy? (Puedes escribir el nombre o "ver productos")`);
       } else {
-        await client.sendText(message.from, '¡Hola! 😊 Bienvenido a Ganesha. ¿Con quién tengo el gusto?');
+        await client.sendText(message.from, '¡Hola! 😊 ¿Con quién tengo el gusto?');
       }
       return;
     }
@@ -114,13 +113,12 @@ async function start(client) {
       if (index !== -1) {
         const eliminado = carrito[index];
         carrito.splice(index, 1);
-        await client.sendText(message.from, `Listo, he eliminado "${eliminado.nombre}" de tu carrito.`);
+        await client.sendText(message.from, `Listo, eliminé "${eliminado.nombre}" de tu carrito.`);
         if (carrito.length) {
-          const resumen = carrito.map((p, i) => `${i + 1}. ${p.nombre} - $${p.precio} x ${p.cantidad}`).join('\n');
           const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
-          await client.sendText(message.from, `🛒 Tu carrito actualizado:\n${resumen}\n\n🧾 Total: $${total.toFixed(2)} MXN`);
+          await client.sendText(message.from, `Ahora tienes ${carrito.length} producto(s) en tu carrito. ¿Quieres agregar otro producto, ver tu carrito o finalizar tu pedido?`);
         } else {
-          await client.sendText(message.from, 'Ahora tu carrito está vacío.');
+          await client.sendText(message.from, 'Ahora tu carrito está vacío. ¿Quieres agregar otro producto?');
         }
       } else {
         await client.sendText(message.from, `No encontré ese producto en tu carrito. Puedes revisar con 'resumen del carrito'.`);
@@ -139,21 +137,26 @@ async function start(client) {
         if (nuevaCantidad <= 0) {
           const eliminado = carrito[index];
           carrito.splice(index, 1);
-          await client.sendText(message.from, `Como la cantidad es 0, he eliminado "${eliminado.nombre}" de tu carrito.`);
+          await client.sendText(message.from, `Como la cantidad es 0, eliminé "${eliminado.nombre}" de tu carrito.`);
         } else {
           carrito[index].cantidad = nuevaCantidad;
-          await client.sendText(message.from, `Perfecto, ahora tienes ${nuevaCantidad} x ${carrito[index].nombre} en tu carrito.`);
+          await client.sendText(message.from, `Listo, ahora tienes ${nuevaCantidad} x ${carrito[index].nombre} en tu carrito.`);
         }
         if (carrito.length) {
-          const resumen = carrito.map((p, i) => `${i + 1}. ${p.nombre} - $${p.precio} x ${p.cantidad}`).join('\n');
           const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
-          await client.sendText(message.from, `🛒 Tu carrito actualizado:\n${resumen}\n\n🧾 Total: $${total.toFixed(2)} MXN`);
+          await client.sendText(message.from, `Ahora tienes ${carrito.length} producto(s) en tu carrito. ¿Quieres agregar otro producto, ver tu carrito o finalizar tu pedido?`);
         } else {
-          await client.sendText(message.from, 'Ahora tu carrito está vacío.');
+          await client.sendText(message.from, 'Ahora tu carrito está vacío. ¿Quieres agregar otro producto?');
         }
       } else {
         await client.sendText(message.from, `No encontré ese producto en tu carrito. Puedes revisar con 'resumen del carrito'.`);
       }
+      return;
+    }
+
+    // --- Comando: Ayuda o Menú ---
+    if (/^(ayuda|comandos|menú)$/i.test(consulta)) {
+      await client.sendText(message.from, '¿En qué te puedo ayudar?');
       return;
     }
 
@@ -177,7 +180,10 @@ async function start(client) {
 
       if (producto) {
         sesiones[message.from].carrito.push({ ...producto, cantidad });
-        await client.sendText(message.from, `✅ Agregado ${cantidad} x ${producto.nombre} al carrito.`);
+        await client.sendText(message.from, `Listo, agregué ${cantidad} x ${producto.nombre} a tu carrito.`);
+        const carrito = sesiones[message.from].carrito;
+        const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+        await client.sendText(message.from, `Ahora tienes ${carrito.length} producto(s) en tu carrito. ¿Quieres agregar otro producto, ver tu carrito o finalizar tu pedido?`);
       } else {
         await client.sendText(message.from, 'No encontré ese producto en el catálogo.');
       }
