@@ -35,6 +35,34 @@ async function start(client) {
     console.log('Mensaje recibido:', message.body);
     const consulta = message.body.toLowerCase();
 
+// === preguntas sobre el último producto ===
+if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(consulta)) {
+  const ultimo = sesiones[message.from]?.ultimoProducto;
+
+  if (ultimo) {
+    let respuesta = '';
+
+    if (/cu[aá]nto cuesta|precio|vale/.test(consulta)) {
+      respuesta = El precio de ${ultimo.nombre} es $${ultimo.precio} MXN.;
+    } else if (/presentaci[oó]n/.test(consulta)) {
+      respuesta = ${ultimo.nombre} se presenta en: ${ultimo.descripcion};
+    } else if (/para qu[eé] sirve/.test(consulta)) {
+      respuesta = Este producto sirve para: ${ultimo.descripcion};
+    }
+
+    await client.sendText(message.from, respuesta);
+    return;
+  }
+}
+	// === inicio memoria por cliente ===
+    if (!sesiones [message.from]) {
+    sesiones[message.form] = {
+	nombre:'',
+  	carrito: [],
+	ultimoProducto: '',
+	ultimaInteraccion: new Date()
+ };
+} 
     const cliente = await coleccionClientes.findOne({ numero: message.from });
 
     if (!cliente || !cliente.coleccion_productos) {
@@ -122,9 +150,10 @@ async function start(client) {
       const cantidad = parseInt(matchCantidad[1]);
       const nombreProducto = matchCantidad[2];
       const producto = await coleccionProductos.findOne({ nombre: new RegExp(nombreProducto, 'i') });
-
+     	
       if (producto) {
         sesiones[message.from].carrito.push({ ...producto, cantidad });
+	   sesiones[message.from].ultimoProducto = producto;	
         await client.sendText(message.from, `✅ Agregado ${cantidad} x ${producto.nombre} al carrito.`);
       } else {
         await client.sendText(message.from, 'No encontré ese producto en el catálogo.');
