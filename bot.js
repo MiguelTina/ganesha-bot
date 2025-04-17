@@ -43,11 +43,11 @@ if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(c
     let respuesta = '';
 
     if (/cu[aá]nto cuesta|precio|vale/.test(consulta)) {
-      respuesta = El precio de ${ultimo.nombre} es $${ultimo.precio} MXN.;
+      respuesta = `El precio de ${ultimo.nombre} es $${ultimo.precio} MXN.`;
     } else if (/presentaci[oó]n/.test(consulta)) {
-      respuesta = ${ultimo.nombre} se presenta en: ${ultimo.descripcion};
+      respuesta = `${ultimo.nombre} se presenta en: ${ultimo.descripcion}`;
     } else if (/para qu[eé] sirve/.test(consulta)) {
-      respuesta = Este producto sirve para: ${ultimo.descripcion};
+      respuesta = `Este producto sirve para: ${ultimo.descripcion}`;
     }
 
     await client.sendText(message.from, respuesta);

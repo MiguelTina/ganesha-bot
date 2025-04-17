@@ -1,85 +1,9 @@
-2025/04/16-17:43:20.581 7450 Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2025/04/16-17:43:20.581 7450 Recovering log #49
-2025/04/16-17:43:20.781 7450 Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000049.log 
-2025/04/16-17:43:23.251 744f Level-0 table #55: started
-2025/04/16-17:43:23.318 744f Level-0 table #55: 900914 bytes OK
-2025/04/16-17:43:23.320 744f Delete type=0 #49
-2025/04/16-17:43:23.323 744f Manual compaction at level-0 from '\x00\x18\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x19\x00\x00\x00' @ 0 : 0; will stop at (end)
-2025/04/16-17:43:23.337 7458 Level-0 table #57: started
-2025/04/16-17:43:23.341 7458 Level-0 table #57: 250 bytes OK
-2025/04/16-17:43:23.343 7458 Delete type=0 #54
-2025/04/16-17:43:23.345 7450 Manual compaction at level-0 from '\x00\x19\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x1a\x00\x00\x00' @ 0 : 0; will stop at '\x00\x19\x00\x00\x05' @ 236861 : 0
-2025/04/16-17:43:23.345 7450 Compacting 1@0 + 1@1 files
-2025/04/16-17:43:23.407 7450 Generated table #58@0: 34225 keys, 558372 bytes
-2025/04/16-17:43:23.407 7450 Compacted 1@0 + 1@1 files => 558372 bytes
-2025/04/16-17:43:23.408 7450 compacted to: files[ 0 1 2 0 0 0 0 ]
-2025/04/16-17:43:23.409 7450 Delete type=2 #57
-2025/04/16-17:43:23.409 7450 Manual compaction at level-0 from '\x00\x19\x00\x00\x05' @ 236861 : 0 .. '\x00\x1a\x00\x00\x00' @ 0 : 0; will stop at (end)
-2025/04/16-17:43:24.294 744f Compacting 1@1 + 2@2 files
-2025/04/16-17:43:24.454 744f Generated table #59@1: 27289 keys, 2193088 bytes
-2025/04/16-17:43:24.512 744f Generated table #60@1: 33041 keys, 857352 bytes
-2025/04/16-17:43:24.513 744f Compacted 1@1 + 2@2 files => 3050440 bytes
-2025/04/16-17:43:24.514 744f compacted to: files[ 0 0 2 0 0 0 0 ]
-2025/04/16-17:43:24.515 744f Delete type=2 #51
-2025/04/16-17:43:24.515 744f Delete type=2 #58
-2025/04/16-17:43:24.515 744f Delete type=2 #52
-2025/04/16-17:43:24.515 744f Delete type=2 #55
-2025/04/16-17:43:37.061 7458 Level-0 table #62: started
-2025/04/16-17:43:37.070 7458 Level-0 table #62: 79938 bytes OK
-2025/04/16-17:43:37.074 7458 Delete type=0 #56
-2025/04/16-17:43:37.075 744f Manual compaction at level-0 from '\x00\x1b\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x1c\x00\x00\x00' @ 0 : 0; will stop at (end)
-2025/04/16-17:43:41.200 7450 Compacting 1@1 + 2@2 files
-2025/04/16-17:43:41.319 7450 Generated table #63@1: 28065 keys, 2192379 bytes
-2025/04/16-17:43:41.372 7450 Generated table #64@1: 33092 keys, 887399 bytes
-2025/04/16-17:43:41.372 7450 Compacted 1@1 + 2@2 files => 3079778 bytes
-2025/04/16-17:43:41.374 7450 compacted to: files[ 0 0 2 0 0 0 0 ]
-2025/04/16-17:43:41.375 7450 Delete type=2 #59
-2025/04/16-17:43:41.375 7450 Delete type=2 #60
-2025/04/16-17:43:41.375 7450 Delete type=2 #62
-2025/04/16-17:44:03.592 7450 Level-0 table #66: started
-2025/04/16-17:44:03.646 7450 Level-0 table #66: 1075888 bytes OK
-2025/04/16-17:44:03.651 7450 Delete type=0 #61
-2025/04/16-17:44:03.667 7450 Compacting 1@1 + 2@2 files
-2025/04/16-17:44:03.772 7450 Generated table #67@1: 29622 keys, 2193059 bytes
-2025/04/16-17:44:03.837 7450 Generated table #68@1: 50015 keys, 1384110 bytes
-2025/04/16-17:44:03.838 7450 Compacted 1@1 + 2@2 files => 3577169 bytes
-2025/04/16-17:44:03.839 7450 compacted to: files[ 0 0 2 0 0 0 0 ]
-2025/04/16-17:44:03.839 7450 Delete type=2 #64
-2025/04/16-17:44:03.840 7450 Delete type=2 #66
-2025/04/16-17:44:03.840 7450 Delete type=2 #63
-2025/04/16-17:44:11.433 7458 Level-0 table #70: started
-2025/04/16-17:44:11.484 7458 Level-0 table #70: 991463 bytes OK
-2025/04/16-17:44:11.488 7458 Delete type=0 #65
-2025/04/16-17:44:12.464 7451 Compacting 1@1 + 2@2 files
-2025/04/16-17:44:12.697 7451 Generated table #71@1: 28874 keys, 2192698 bytes
-2025/04/16-17:44:12.792 7451 Generated table #72@1: 67288 keys, 1836382 bytes
-2025/04/16-17:44:12.792 7451 Compacted 1@1 + 2@2 files => 4029080 bytes
-2025/04/16-17:44:12.794 7451 compacted to: files[ 0 0 2 0 0 0 0 ]
-2025/04/16-17:44:12.794 7451 Delete type=2 #67
-2025/04/16-17:44:12.794 7451 Delete type=2 #68
-2025/04/16-17:44:12.795 7451 Delete type=2 #70
-2025/04/16-17:44:29.384 7451 Level-0 table #74: started
-2025/04/16-17:44:29.443 7451 Level-0 table #74: 1039594 bytes OK
-2025/04/16-17:44:29.448 7451 Delete type=0 #69
-2025/04/16-17:44:30.459 7450 Compacting 1@1 + 2@2 files
-2025/04/16-17:44:30.633 7450 Generated table #75@1: 29154 keys, 2192417 bytes
-2025/04/16-17:44:30.825 7450 Generated table #76@1: 79268 keys, 2225630 bytes
-2025/04/16-17:44:30.834 7450 Generated table #77@1: 5719 keys, 110863 bytes
-2025/04/16-17:44:30.834 7450 Compacted 1@1 + 2@2 files => 4528910 bytes
-2025/04/16-17:44:30.836 7450 compacted to: files[ 0 0 3 0 0 0 0 ]
-2025/04/16-17:44:30.837 7450 Delete type=2 #71
-2025/04/16-17:44:30.837 7450 Delete type=2 #72
-2025/04/16-17:44:30.837 7450 Delete type=2 #74
-2025/04/16-17:44:48.184 7450 Level-0 table #79: started
-2025/04/16-17:44:48.252 7450 Level-0 table #79: 1045998 bytes OK
-2025/04/16-17:44:48.256 7450 Delete type=0 #73
-2025/04/16-17:44:48.986 7450 Compacting 1@1 + 3@2 files
-2025/04/16-17:44:49.110 7450 Generated table #80@1: 28929 keys, 2192194 bytes
-2025/04/16-17:44:49.347 7450 Generated table #81@1: 72002 keys, 2215863 bytes
-2025/04/16-17:44:49.429 7450 Generated table #82@1: 31368 keys, 610663 bytes
-2025/04/16-17:44:49.429 7450 Compacted 1@1 + 3@2 files => 5018720 bytes
-2025/04/16-17:44:49.431 7450 compacted to: files[ 0 0 3 0 0 0 0 ]
-2025/04/16-17:44:49.431 7450 Delete type=2 #77
-2025/04/16-17:44:49.431 7450 Delete type=2 #79
-2025/04/16-17:44:49.431 7450 Delete type=2 #75
-2025/04/16-17:44:49.432 7450 Delete type=2 #76
+2025/04/16-18:10:37.909 7b3a Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/04/16-18:10:37.910 7b3a Recovering log #78
+2025/04/16-18:10:38.045 7b3a Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000078.log 
+2025/04/16-18:10:40.191 7b3a Level-0 table #85: started
+2025/04/16-18:10:40.264 7b3a Level-0 table #85: 820099 bytes OK
+2025/04/16-18:10:40.266 7b3a Delete type=0 #78
+2025/04/16-18:10:40.269 7b3a Manual compaction at level-0 from '\x00\x1c\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x1d\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/04/16-18:10:45.192 7b3b Compacting 1@1 + 3@2 files
+2025/04/16-18:10:45.574 7b3b Generated table #86@1: 26243 keys, 2189354 bytes
