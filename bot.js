@@ -35,6 +35,15 @@ async function start(client) {
     console.log('Mensaje recibido:', message.body);
     const consulta = message.body.toLowerCase();
 
+    // == detectar categoria mencionada ==
+    const categorias = ['pinturas', 'impermeabilizantes', 'esmaltes', 'selladores', 'barnices', 'primarios'];
+    for (const categoria of categorias) {
+      if (consulta.includes(categoria)) {
+        sesiones[message.from].CategoriaActual = categoria;
+        console.log(`Categoria actual guardada: ${categoria}`);
+        break;
+      }
+    }  
 // === preguntas sobre el último producto ===
 if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(consulta)) {
   const ultimo = sesiones[message.from]?.ultimoProducto;
@@ -60,6 +69,7 @@ if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(c
 	nombre:'',
   	carrito: [],
 	ultimoProducto: '',
+  categoriaActual: '', //mantener el contexto de categoria
 	ultimaInteraccion: new Date()
  };
 } 
@@ -161,7 +171,16 @@ if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(c
       return;
     }
 
-    const productos = await coleccionProductos.find().toArray();
+    let productos =[];
+
+    if (sesiones[message.from]?.CategoriaActual) {
+      const categoria = sesiones[message.from].CategoriaActual;
+      productos = await coleccionProductos.find ({ categoria }).toArray();
+      console.log(`filtrando productos por categoria: ${categoria}`);
+    } else {
+      productos = await coleccionProductos.find().toArray();
+    } 
+
     const prompt = `Eres un asistente virtual de Ganesha. Catálogo:\n${productos.map(p => `- ${p.nombre}: ${p.descripcion}, Precio: $${p.precio}`).join('\n')}`;
 
     const completion = await openai.chat.completions.create({

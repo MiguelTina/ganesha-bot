@@ -1,3 +1,3 @@
-2025/04/17-11:47:07.791 11b8 Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/shared_proto_db/metadata/MANIFEST-000001
-2025/04/17-11:47:07.793 11b8 Recovering log #3
-2025/04/17-11:47:07.797 11b8 Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/shared_proto_db/metadata/000003.log 
+2025/04/17-13:42:00.781 2a01 Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/shared_proto_db/metadata/MANIFEST-000001
+2025/04/17-13:42:00.783 2a01 Recovering log #3
+2025/04/17-13:42:00.787 2a01 Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/shared_proto_db/metadata/000003.log 
