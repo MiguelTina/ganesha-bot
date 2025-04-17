@@ -181,6 +181,20 @@ if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(c
       productos = await coleccionProductos.find().toArray();
     } 
 
+    // == detectar si el mensaje contiene una opcion como "opcion 1" o la "opcion 2"
+    const matchOpcion = consulta.match(/opci[oó]n\s*(\d+)/);
+    if (matchOpcion) {
+      const indice = parseInt(matchOpcion[1], 10) - 1;
+      if (productos[indice]) {
+        const producto = productos[indice];
+        sesiones[message.from].ultimoProducto = producto;
+        await Client.sendText(message.from, `perfecto has elegido el "${producto.nombre}" con un precio de $${producto.precio}. ¿Te gustaria agregar algo mas a tu compra?`);
+          return;
+         } else {
+          await client.sendText(message.from, `esa opcion no es valida. ¿Podrias repetir el numero correctamente?`);
+        return;
+        }
+    }         
     const prompt = `Eres un asistente virtual de Ganesha. Catálogo:\n${productos.map(p => `- ${p.nombre}: ${p.descripcion}, Precio: $${p.precio}`).join('\n')}`;
 
     const completion = await openai.chat.completions.create({
