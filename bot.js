@@ -48,6 +48,18 @@ async function start(client) {
 if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(consulta)) {
   const ultimo = sesiones[message.from]?.ultimoProducto;
 
+  // === confirmar compra con "si" o "no" ===
+  if (/^s[ií]\s*$/i.test(consulta.trim()) && sesiones[message.from]?.ultimoProducto) {
+    const producto = sesiones[message.from].ultimoProducto;
+    sesiones[message.from].carrito.push({...producto, cantidad: 1 });
+    await client.sendText(message.from, `✅ Agregado 1 x ${producto.nombre} al carrito.`)
+    return;
+  }
+  if (/^no$/.test(consulta.trim())) {
+    await client.sendText(message.from, `Perfecto, no se ha agregado ningun producto. ¿Hay algo mas que pueda ayudarte a encontrar?`);
+    return;
+  }
+
   // == Confirmacion de compra despues de sugerencia ===
   if (/^(si|si)$/i.test(consulta) && ultimo) {
     const texto = `¡perfecto! Has elegido el "${ultimo.nombre}" con un precio de $${ultimo.precio}. ¿Te gustaria agregar algo mas a tu compra?`;
@@ -59,7 +71,7 @@ if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(c
     await client.sendText(message.from, 'Èntiendo, ¿Hay otro producto que te interese? Puedes escribirme el nombre o una palabra clave.')
     return
   }
-  
+
   if (ultimo) {
     let respuesta = '';
 
