@@ -48,6 +48,18 @@ async function start(client) {
 if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(consulta)) {
   const ultimo = sesiones[message.from]?.ultimoProducto;
 
+  // == Confirmacion de compra despues de sugerencia ===
+  if (/^(si|si)$/i.test(consulta) && ultimo) {
+    const texto = `¡perfecto! Has elegido el "${ultimo.nombre}" con un precio de $${ultimo.precio}. ¿Te gustaria agregar algo mas a tu compra?`;
+    await client.sendText(message.from,texto);
+    return;
+  }
+
+  if (/^no$/i.test(consulta) && ultimo) {
+    await client.sendText(message.from, 'Èntiendo, ¿Hay otro producto que te interese? Puedes escribirme el nombre o una palabra clave.')
+    return
+  }
+  
   if (ultimo) {
     let respuesta = '';
 
