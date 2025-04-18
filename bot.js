@@ -182,19 +182,28 @@ if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(c
     } 
 
     // == detectar si el mensaje contiene una opcion como "opcion 1" o la "opcion 2"
-    const matchOpcion = consulta.match(/opci[oó]n\s*(\d+)/);
-    if (matchOpcion) {
-      const indice = parseInt(matchOpcion[1], 10) - 1;
-      if (productos[indice]) {
-        const producto = productos[indice];
-        sesiones[message.from].ultimoProducto = producto;
-        await Client.sendText(message.from, `perfecto has elegido el "${producto.nombre}" con un precio de $${producto.precio}. ¿Te gustaria agregar algo mas a tu compra?`);
-          return;
-         } else {
-          await client.sendText(message.from, `esa opcion no es valida. ¿Podrias repetir el numero correctamente?`);
-        return;
-        }
-    }         
+    const matchOpcion = consulta.match(/opción\s+(\d+)/i);
+if (matchOpcion && sesiones[message.from]?.ultimosProductosMostrados) {
+  const indice = parseInt(matchOpcion[1]) - 1;
+  const productosMostrados = sesiones[message.from].ultimosProductosMostrados;
+  const productoSeleccionado = productosMostrados[indice];
+
+  if (productoSeleccionado) {
+    sesiones[message.from].ultimoProducto = productoSeleccionado;
+    sesiones[message.from].carrito.push({
+      nombre: productoSeleccionado.nombre,
+      precio: productoSeleccionado.precio,
+      cantidad: 1
+    });
+
+    await client.sendText(message.from,
+      `✅ Has agregado *${productoSeleccionado.nombre}* al carrito.\n💰 Precio: $${productoSeleccionado.precio} MXN\n\n¿Te gustaría agregar otro producto o finalizar tu pedido?`);
+  } else {
+    await client.sendText(message.from, 'No encontré esa opción, ¿podrías verificar el número?');
+  }
+  return;
+}
+    
     const prompt = `Eres un asistente virtual de Ganesha. Catálogo:\n${productos.map(p => `- ${p.nombre}: ${p.descripcion}, Precio: $${p.precio}`).join('\n')}`;
 
     const completion = await openai.chat.completions.create({
