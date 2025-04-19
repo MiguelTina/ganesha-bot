@@ -35,15 +35,40 @@ async function start(client) {
     console.log('Mensaje recibido:', message.body);
     const consulta = message.body.toLowerCase();
 
+    if (!sesiones[message.from]) {
+      sesiones[message.from] = {
+        carrito: [],
+        ultimaInteraccion: null,
+        categoriaActual: null,
+        ultimoProducto: null,
+      };
+    }
+    
     // == detectar categoria mencionada ==
-    const categorias = ['pinturas', 'impermeabilizantes', 'esmaltes', 'selladores', 'barnices', 'primarios'];
+    const categorias = ['impermeabilizantes', 'pinturas', 'esmaltes', 'barnices'];
+    
     for (const categoria of categorias) {
       if (consulta.includes(categoria)) {
-        sesiones[message.from].CategoriaActual = categoria;
-        console.log(`Categoria actual guardada: ${categoria}`);
-        break;
+        sesiones[message.from].categoriaActual = categoria;
+        const productosCategoria = await coleccionProductos.find({ categoria: categoria }).toArray();
+    
+        if (productosCategoria.length === 0) {
+          await client.sendText(message.from, `No encontré productos en la categoría "${categoria}".`);
+        } else {
+          let respuesta = `Estos son los productos disponibles en la categoría *${categoria}*:\n`;
+          productosCategoria.forEach((p, i) => {
+            respuesta += `\n${i + 1}. ${p.nombre} - $${p.precio}`;
+          });
+          respuesta += `\n\nResponde con el nombre o "opción 1", "opción 2", etc. para elegir.`;
+          sesiones[message.from].productosCategoria = productosCategoria;
+          await client.sendText(message.from, respuesta);
+        }
+    
+        return;
       }
-    }  
+    }
+    
+    
 // === preguntas sobre el último producto ===
 if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(consulta)) {
   const ultimo = sesiones[message.from]?.ultimoProducto;
@@ -189,6 +214,7 @@ if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(c
         sesiones[message.from].carrito.push({ ...producto, cantidad });
 	   sesiones[message.from].ultimoProducto = producto;	
         await client.sendText(message.from, `✅ Agregado ${cantidad} x ${producto.nombre} al carrito.`);
+        sesiones[message.from].ultimaInteraccion = 'post compra';
       } else {
         await client.sendText(message.from, 'No encontré ese producto en el catálogo.');
       }

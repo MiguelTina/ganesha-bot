@@ -1,21 +1,13 @@
-2025/04/18-12:49:20.015 223e Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2025/04/18-12:49:20.017 223e Recovering log #155
-2025/04/18-12:49:20.133 223e Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000155.log 
-2025/04/18-12:49:20.133 223e Delete type=2 #156
-2025/04/18-12:49:20.135 223e Delete type=2 #152
-2025/04/18-12:49:20.136 223e Delete type=2 #153
-2025/04/18-12:49:20.136 223e Delete type=2 #151
-2025/04/18-12:49:22.769 223f Level-0 table #162: started
-2025/04/18-12:49:22.827 223f Level-0 table #162: 585616 bytes OK
-2025/04/18-12:49:22.831 223f Delete type=0 #155
-2025/04/18-12:49:22.833 2240 Manual compaction at level-0 from '\x00(\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00)\x00\x00\x00' @ 0 : 0; will stop at (end)
-2025/04/18-12:49:28.252 223e Compacting 1@1 + 3@2 files
-2025/04/18-12:49:28.432 223e Generated table #163@1: 39361 keys, 2197832 bytes
-2025/04/18-12:49:28.732 223e Generated table #164@1: 38161 keys, 2188418 bytes
-2025/04/18-12:49:29.130 223e Generated table #165@1: 86534 keys, 1687665 bytes
-2025/04/18-12:49:29.134 223e Compacted 1@1 + 3@2 files => 6073915 bytes
-2025/04/18-12:49:29.140 223e compacted to: files[ 0 0 3 0 0 0 0 ]
-2025/04/18-12:49:29.144 223e Delete type=2 #158
-2025/04/18-12:49:29.146 223e Delete type=2 #159
-2025/04/18-12:49:29.146 223e Delete type=2 #157
-2025/04/18-12:49:29.146 223e Delete type=2 #162
+2025/04/19-13:23:19.748 29ae Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/04/19-13:23:19.749 29ae Recovering log #190
+2025/04/19-13:23:19.877 29ae Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000190.log 
+2025/04/19-13:23:22.171 29ad Level-0 table #197: started
+2025/04/19-13:23:22.253 29ad Level-0 table #197: 928930 bytes OK
+2025/04/19-13:23:22.256 29ad Delete type=0 #190
+2025/04/19-13:23:22.259 29ad Manual compaction at level-0 from '\x00-\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00.\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/04/19-13:23:27.843 29ae Compacting 1@1 + 4@2 files
+2025/04/19-13:23:28.191 29ae Generated table #198@1: 47609 keys, 2212997 bytes
+2025/04/19-13:23:28.550 29ae Generated table #199@1: 20341 keys, 2170906 bytes
+2025/04/19-13:23:29.053 29ae Generated table #200@1: 109415 keys, 2142071 bytes
+2025/04/19-13:23:29.054 29ae Compacted 1@1 + 4@2 files => 6525974 bytes
+2025/04/19-13:23:29.062 29ae compacted to: files[ 0 0 3 0 0 0 0 ]

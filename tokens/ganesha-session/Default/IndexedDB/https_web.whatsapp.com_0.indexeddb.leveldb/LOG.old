@@ -1,13 +1,30 @@
-2025/04/18-12:00:01.352 1576 Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2025/04/18-12:00:01.353 1576 Recovering log #149
-2025/04/18-12:00:01.414 1576 Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000149.log 
-2025/04/18-12:00:02.679 1576 Level-0 table #156: started
-2025/04/18-12:00:02.728 1576 Level-0 table #156: 501938 bytes OK
-2025/04/18-12:00:02.732 1576 Delete type=0 #149
-2025/04/18-12:00:02.734 1576 Manual compaction at level-0 from '\x00'\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00(\x00\x00\x00' @ 0 : 0; will stop at (end)
-2025/04/18-12:00:07.434 1577 Compacting 1@1 + 3@2 files
-2025/04/18-12:00:07.629 1577 Generated table #157@1: 37622 keys, 2194426 bytes
-2025/04/18-12:00:07.746 1577 Generated table #158@1: 41702 keys, 2192466 bytes
-2025/04/18-12:00:07.892 1577 Generated table #159@1: 82140 keys, 1601776 bytes
-2025/04/18-12:00:07.892 1577 Compacted 1@1 + 3@2 files => 5988668 bytes
-2025/04/18-12:00:07.894 1577 compacted to: files[ 0 0 3 0 0 0 0 ]
+2025/04/19-12:51:02.288 210e Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/04/19-12:51:02.288 210e Recovering log #184
+2025/04/19-12:51:02.293 210e Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000184.log 
+2025/04/19-12:51:03.218 210e Compacting 1@1 + 3@2 files
+2025/04/19-12:51:03.358 210e Generated table #187@1: 45236 keys, 2209363 bytes
+2025/04/19-12:51:03.516 210e Generated table #188@1: 25301 keys, 2176684 bytes
+2025/04/19-12:51:03.561 210e Level-0 table #191: started
+2025/04/19-12:51:03.567 210e Level-0 table #191: 21770 bytes OK
+2025/04/19-12:51:03.570 210e Delete type=0 #184
+2025/04/19-12:51:03.725 210e Generated table #189@1: 102772 keys, 2010010 bytes
+2025/04/19-12:51:03.725 210e Compacted 1@1 + 3@2 files => 6396057 bytes
+2025/04/19-12:51:03.729 210e compacted to: files[ 1 0 3 0 0 0 0 ]
+2025/04/19-12:51:03.730 210e Manual compaction at level-0 from '\x00,\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00-\x00\x00\x00' @ 0 : 0; will stop at '\x00,\x00\x00\x05' @ 826028 : 1
+2025/04/19-12:51:03.730 210e Compacting 1@0 + 0@1 files
+2025/04/19-12:51:03.733 210e Generated table #192@0: 495 keys, 11189 bytes
+2025/04/19-12:51:03.733 210e Compacted 1@0 + 0@1 files => 11189 bytes
+2025/04/19-12:51:03.736 210e compacted to: files[ 0 1 3 0 0 0 0 ]
+2025/04/19-12:51:03.737 210e Delete type=2 #191
+2025/04/19-12:51:03.737 210e Manual compaction at level-0 from '\x00,\x00\x00\x05' @ 826028 : 1 .. '\x00-\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/04/19-12:51:09.337 210f Compacting 1@1 + 1@2 files
+2025/04/19-12:51:09.575 210f Generated table #193@1: 45339 keys, 2208342 bytes
+2025/04/19-12:51:09.578 210f Generated table #194@1: 2 keys, 4751 bytes
+2025/04/19-12:51:09.578 210f Compacted 1@1 + 1@2 files => 2213093 bytes
+2025/04/19-12:51:09.580 210f compacted to: files[ 0 0 4 0 0 0 0 ]
+2025/04/19-12:51:09.582 210f Delete type=2 #187
+2025/04/19-12:51:09.582 210f Delete type=2 #192
+2025/04/19-12:51:09.582 210f Delete type=2 #181
+2025/04/19-12:51:09.583 210f Delete type=2 #180
+2025/04/19-12:51:09.583 210f Delete type=2 #182
+2025/04/19-12:51:09.583 210f Delete type=2 #185
