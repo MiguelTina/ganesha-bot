@@ -46,7 +46,7 @@ async function start(client) {
     
     // == detectar categoria mencionada ==
     const categorias = ['impermeabilizantes', 'pinturas', 'esmaltes', 'barnices'];
-    
+
     for (const categoria of categorias) {
       if (consulta.includes(categoria)) {
         sesiones[message.from].categoriaActual = categoria;
@@ -63,12 +63,10 @@ async function start(client) {
           sesiones[message.from].productosCategoria = productosCategoria;
           await client.sendText(message.from, respuesta);
         }
-    
         return;
       }
     }
-    
-    
+
 // === preguntas sobre el último producto ===
 if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(consulta)) {
   const ultimo = sesiones[message.from]?.ultimoProducto;
@@ -112,6 +110,7 @@ if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(c
     return;
   }
 }
+
 	// === inicio memoria por cliente ===
     if (!sesiones [message.from]) {
     sesiones[message.form] = {
@@ -122,6 +121,7 @@ if (/(cu[aá]nto cuesta|precio|vale|presentaci[oó]n|para qu[eé] sirve)/.test(c
 	ultimaInteraccion: new Date()
  };
 } 
+
     const cliente = await coleccionClientes.findOne({ numero: message.from });
 
     if (!cliente || !cliente.coleccion_productos) {
