@@ -1,30 +1,16 @@
-// db.js
 const { MongoClient } = require('mongodb');
-require('dotenv').config();
-
-const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri);
 
 let db;
 
 async function connectDB() {
-  try {
-    await client.connect();
-    db = client.db();
-    console.log('✅ Conectado a MongoDB Atlas');
-  } catch (err) {
-    console.error('❌ Error al conectar a MongoDB:', err);
-  }
+  const client = new MongoClient('mongodb://localhost:27017');
+  await client.connect();
+  db = client.db('ganesha'); // 👈 debe ser exactamente "ganesha"
+  console.log("✅ Conectado a MongoDB");
 }
 
 function getDB() {
-  if (!db) {
-    throw new Error('La base de datos no ha sido conectada. Asegúrate de llamar connectDB() primero.');
-  }
   return db;
 }
 
-module.exports = {
-  connectDB,
-  getDB
-};
+module.exports = { connectDB, getDB };

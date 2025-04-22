@@ -5,134 +5,174 @@ const { connectDB, getDB } = require('./db');
 
 connectDB();
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 const sesiones = {};
+
+// 👉 Función que busca productos por nombre
+async function buscarProductoPorNombre(nombre, numeroCliente) {
+  const db = getDB();
+  const texto = nombre.trim().toLowerCase();
+
+  const productos = await db.collection('productos-demo').find({
+    nombre: { $regex: texto, $options: 'i' },
+  }).toArray();
+
+  if (productos.length === 0) return 'No encontré ese producto 😕';
+
+  // Guardar el producto mostrado en la sesión
+  sesiones[numeroCliente].ultimoProductoMostrado = productos[0];
+
+  return productos.map(p => `🛒 ${p.nombre} - $${p.precio}`).join('\n');
+}
+
+// 👉 Funciones disponibles para GPT
+const functions = [
+  {
+    name: "buscarProductoPorNombre",
+    description: "Busca productos por nombre en el catálogo",
+    parameters: {
+      type: "object",
+      properties: {
+        nombre: {
+          type: "string",
+          description: "Nombre del producto",
+        },
+      },
+      required: ["nombre"],
+    },
+  }
+];
 
 wppconnect
   .create({
     session: 'ganesha-session',
-    headless: false,
-    browserArgs: ['--no-sandbox'],
     catchQR: (base64QR, asciiQR) => {
       console.log('Escanea este QR con tu celular:');
       console.log(asciiQR);
     },
     statusFind: (statusSession) => {
       console.log('Estado de la sesión:', statusSession);
-    }
+    },
+    headless: true,
   })
   .then((client) => start(client))
   .catch((error) => console.error(error));
 
 async function start(client) {
-  const db = getDB();
-  const coleccionProductos = db.collection('productos');
-  const coleccionPedidos = db.collection(process.env.COL_PEDIDOS || 'pedidos');
-
   client.onMessage(async (message) => {
-    const consulta = message.body.toLowerCase().trim();
+    if (!message.body || message.isGroupMsg) return;
 
-    if (!sesiones[message.from]) {
-      sesiones[message.from] = {
-        carrito: [],
-        categoriaActual: null,
-        productosCategoria: [],
-        ultimoProducto: null,
-        ultimaInteraccion: null
-      };
+    const numeroCliente = message.from;
+    const texto = message.body.toLowerCase();
+
+    if (!sesiones[numeroCliente]) {
+      sesiones[numeroCliente] = [
+        {
+          role: 'system',
+          content: 'Eres un vendedor amable que solo responde sobre productos del catálogo.',
+        },
+      ];
+      sesiones[numeroCliente].carrito = [];
+      sesiones[numeroCliente].ultimoProductoMostrado = null;
     }
 
-    const sesion = sesiones[message.from];
+    // 👉 Lógica para agregar producto al carrito
+    if (
+      texto.includes("agregar") ||
+      texto.includes("añadir") ||
+      texto.includes("lo puedes agregar") ||
+      texto.includes("puedes añadir") ||
+      texto.includes("me interesa") ||
+      texto.includes("añádelo")
+    ) {
+      const ultimo = sesiones[numeroCliente].ultimoProductoMostrado;
 
-    // === FINALIZAR COTIZACIÓN ===
-    if (/finalizar|terminar/.test(consulta)) {
-      const carrito = sesion.carrito;
-      if (carrito.length === 0) {
-        await client.sendText(message.from, 'Tu carrito está vacío.');
+      if (ultimo) {
+        sesiones[numeroCliente].carrito.push(ultimo);
+        await client.sendText(numeroCliente, `✅ Agregué *${ultimo.nombre}* al carrito.`);
       } else {
-        let resumen = '*🛒 Resumen de tu cotización:*\n';
-        carrito.forEach((p, i) => {
-          resumen += `${i + 1}. ${p.nombre} - $${p.precio} x ${p.cantidad}\n`;
-        });
-        const total = carrito.reduce((acc, p) => acc + p.precio * p.cantidad, 0);
-        resumen += `\n*Total: $${total.toFixed(2)}*\n\nGracias por tu compra.`;
-        await client.sendText(message.from, resumen);
+        await client.sendText(numeroCliente, "No sé qué producto agregar. ¿Podrías repetir el nombre?");
       }
-
-      sesiones[message.from] = {
-        carrito: [],
-        categoriaActual: null,
-        productosCategoria: [],
-        ultimoProducto: null,
-        ultimaInteraccion: null
-      };
-
       return;
     }
 
-    // === CONFIRMACIÓN DE "SÍ" O "NO" ===
-    if (/^s[ií]$/.test(consulta) && sesion.ultimoProducto) {
-      sesion.carrito.push({ ...sesion.ultimoProducto, cantidad: 1 });
-      await client.sendText(message.from, `✅ Agregado 1 x ${sesion.ultimoProducto.nombre} al carrito.`);
-      sesion.categoriaActual = null;
-      sesion.productosCategoria = [];
-      sesion.ultimoProducto = null;
-      sesion.ultimaInteraccion = null;
-      await client.sendText(message.from, `¿Deseas cotizar otra categoría?\n\n*Categorías disponibles:*\n- Impermeabilizantes\n- Pinturas\n- Esmaltes\n- Barnices`);
+    // 👉 Lógica para ver el carrito
+    if (
+      texto.includes("ver carrito") ||
+      texto.includes("mostrar carrito") ||
+      texto.includes("mi carrito")
+    ) {
+      const carrito = sesiones[numeroCliente].carrito;
+
+      if (!carrito || carrito.length === 0) {
+        await client.sendText(numeroCliente, "🛒 Tu carrito está vacío.");
+      } else {
+        let total = 0;
+        const resumen = carrito.map((p, i) => {
+          total += p.precio;
+          return `${i + 1}. ${p.nombre} - $${p.precio}`;
+        }).join('\n');
+
+        const mensaje = `🧾 *Resumen de tu carrito:*\n\n${resumen}\n\n💰 Total: $${total}`;
+        await client.sendText(numeroCliente, mensaje);
+      }
       return;
     }
 
-    if (/^no$/.test(consulta) && sesion.ultimoProducto) {
-      await client.sendText(message.from, 'Entendido, no se agregó el producto. ¿Quieres ver otra categoría?');
-      sesion.ultimoProducto = null;
-      return;
-    }
+    sesiones[numeroCliente].push({ role: 'user', content: message.body });
 
-    // === DETECCIÓN DE CATEGORÍA ===
-    const categorias = ['impermeabilizantes', 'pinturas', 'esmaltes', 'barnices'];
-    for (const cat of categorias) {
-      if (consulta.includes(cat)) {
-        sesion.categoriaActual = cat;
-        const productos = await coleccionProductos.find({ categoria: cat }).toArray();
-        if (productos.length === 0) {
-          await client.sendText(message.from, `No encontré productos en la categoría "${cat}".`);
-        } else {
-          let mensaje = `Estos son los productos en *${cat}*:\n`;
-          productos.forEach((p, i) => {
-            mensaje += `\n${i + 1}. ${p.nombre} - $${p.precio}`;
-          });
-          mensaje += `\n\nResponde con el nombre o "opción 1", "opción 2", etc.`;
-          sesion.productosCategoria = productos;
-          await client.sendText(message.from, mensaje);
+    try {
+      const respuesta = await openai.chat.completions.create({
+        model: "gpt-4-turbo",
+        messages: sesiones[numeroCliente],
+        functions,
+        function_call: "auto",
+      });
+
+      const mensajeGPT = respuesta.choices[0].message;
+      console.log("➡️ Mensaje GPT:", mensajeGPT);
+
+      if (mensajeGPT.function_call) {
+        const llamada = mensajeGPT.function_call;
+        const nombreFuncion = llamada.name;
+        const args = JSON.parse(llamada.arguments);
+
+        console.log("📞 GPT pidió llamar a:", nombreFuncion);
+        console.log("🧾 Parámetros:", args);
+
+        let resultadoFuncion = '';
+
+        if (nombreFuncion === "buscarProductoPorNombre") {
+          resultadoFuncion = await buscarProductoPorNombre(args.nombre, numeroCliente);
+          console.log("🔍 Resultado de la búsqueda:", resultadoFuncion);
         }
-        return;
+
+        const segundaRespuesta = await openai.chat.completions.create({
+          model: "gpt-4-turbo",
+          messages: [
+            ...sesiones[numeroCliente],
+            mensajeGPT,
+            { role: "function", name: nombreFuncion, content: resultadoFuncion },
+          ],
+        });
+
+        const textoFinal = segundaRespuesta.choices[0].message.content;
+        console.log("🤖 Respuesta final de GPT:", textoFinal);
+
+        await client.sendText(numeroCliente, textoFinal);
+        sesiones[numeroCliente].push({ role: 'assistant', content: textoFinal });
+
+      } else {
+        await client.sendText(numeroCliente, mensajeGPT.content);
+        sesiones[numeroCliente].push({ role: 'assistant', content: mensajeGPT.content });
       }
+
+    } catch (error) {
+      console.error("❌ Error en el bot:", error);
+      await client.sendText(numeroCliente, "Ocurrió un error, intenta de nuevo más tarde.");
     }
-
-    // === OPCIONES TIPO "OPCIÓN 1" ===
-    const matchOpcion = consulta.match(/opci[oó]n\s*(\\d+)/i);
-    if (matchOpcion && sesion.productosCategoria.length > 0) {
-      const index = parseInt(matchOpcion[1]) - 1;
-      const producto = sesion.productosCategoria[index];
-      if (producto) {
-        sesion.ultimoProducto = producto;
-        await client.sendText(message.from, `Seleccionaste *${producto.nombre}* por $${producto.precio}. ¿Te gustaría agregarlo al carrito?`);
-        return;
-      }
-    }
-
-    // === GPT: RESPUESTAS INTELIGENTES ===
-    const productos = await coleccionProductos.find().toArray();
-    const prompt = `Actúa como asistente de ventas de Ganesha. Catálogo:\n${productos.map(p => `- ${p.nombre}: ${p.descripcion}, Precio: $${p.precio}`).join('\n')}`;
-    const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL,
-      messages: [
-        { role: 'system', content: prompt },
-        { role: 'user', content: message.body }
-      ]
-    });
-
-    await client.sendText(message.from, completion.choices[0].message.content);
   });
 }

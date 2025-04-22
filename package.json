@@ -12,9 +12,10 @@
   "dependencies": {
     "@wppconnect-team/wppconnect": "^1.36.4",
     "dotenv": "^16.4.7",
+    "mongod": "^2.0.0",
     "mongodb": "^6.15.0",
     "mongoose": "^8.13.2",
-    "openai": "^4.93.0",
+    "openai": "^4.95.1",
     "puppeteer": "^24.6.1"
   }
 }

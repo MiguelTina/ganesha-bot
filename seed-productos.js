@@ -1,31 +1,52 @@
-// seed-productos.js
-require('dotenv').config();
 const { MongoClient } = require('mongodb');
-const fs = require('fs');
 
-const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri);
+async function seedProductos() {
+  const uri = 'mongodb://localhost:27017';
+  const client = new MongoClient(uri);
 
-async function run() {
   try {
     await client.connect();
-    const db = client.db();
-    const productos = db.collection('productos');
 
-    const data = JSON.parse(fs.readFileSync('productos.json', 'utf-8'));
+    const db = client.db('ganesha');
+    const productos = db.collection('productos-demo');
 
-    if (!Array.isArray(data)) {
-      console.error('❌ El archivo productos.json debe ser un arreglo de productos.');
-      return;
-    }
+    // Limpia colección
+    await productos.deleteMany({});
 
-    const result = await productos.insertMany(data);
-    console.log(`✅ ${result.insertedCount} productos insertados en MongoDB.`);
-  } catch (err) {
-    console.error('❌ Error al insertar productos:', err);
+    const datos = [
+      {
+        nombre: "Impermeabilizante rojo 19L",
+        precio: 899,
+        categoria: "impermeabilizantes",
+        descripcion: "Impermeabilizante acrílico rojo cubeta 19 litros"
+      },
+      {
+        nombre: "Impermeabilizante blanco 4L",
+        precio: 349,
+        categoria: "impermeabilizantes",
+        descripcion: "Impermeabilizante blanco para techos 4 litros"
+      },
+      {
+        nombre: "Pintura vinílica blanca 19L",
+        precio: 649,
+        categoria: "pinturas",
+        descripcion: "Pintura interior blanca mate cubeta"
+      }
+    ];
+
+    const resultado = await productos.insertMany(datos);
+
+    console.log(`✅ Insertados ${resultado.insertedCount} productos:`);
+    Object.values(resultado.insertedIds).forEach((id, i) => {
+      console.log(` - ${datos[i].nombre}`);
+    });
+
+  } catch (error) {
+    console.error("❌ Error insertando productos:", error);
   } finally {
     await client.close();
   }
 }
 
-run();
+seedProductos();
+
