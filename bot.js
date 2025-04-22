@@ -2,6 +2,9 @@ require('dotenv').config();
 const wppconnect = require('@wppconnect-team/wppconnect');
 const { OpenAI } = require('openai');
 const { connectDB, getDB } = require('./db');
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 
 connectDB();
 
@@ -12,40 +15,63 @@ const openai = new OpenAI({
 const sesiones = {};
 let globalClient;
 
+// Función que busca productos por nombre
 async function buscarProductoPorNombre(nombre, numeroCliente) {
   const db = getDB();
   const texto = nombre.trim().toLowerCase();
 
   const productos = await db.collection('productos-demo').find({
-    nombre: { $regex: texto, $options: 'i' }
+    nombre: { $regex: texto, $options: 'i' },
   }).toArray();
 
-  if (productos.length === 0) {
-    return '😔 Lo siento, ese producto no lo tengo en este momento. ¿Te gustaría que te ayude con otro artículo de nuestro catálogo?';
-  }
+  if (productos.length === 0) return 'No encontré ese producto 😕';
 
-  // Si solo hay uno, guarda en memoria, envía imagen y devuelve descripción completa
   if (productos.length === 1) {
     const p = productos[0];
     sesiones[numeroCliente].ultimoProductoMostrado = p;
 
     if (p.imagen) {
-      console.log("Enviando imagen:", p.imagen);
-      await globalClient.sendImage(
-        numeroCliente,
-        p.imagen,
-        'producto.jpg',
-        ''
-      );
-    }
+  const axios = require('axios');
+  const fs = require('fs');
+  const path = require('path');
 
-    return `🛒 *${p.nombre}* - $${p.precio}\n\n${p.descripcion || ''}`;
+  try {
+    const imagePath = path.join(__dirname, 'temp-image.jpg');
+    const writer = fs.createWriteStream(imagePath);
+
+    const response = await axios({
+      url: p.imagen,
+      method: 'GET',
+      responseType: 'stream',
+    });
+
+    response.data.pipe(writer);
+
+    await new Promise((resolve, reject) => {
+      writer.on('finish', resolve);
+      writer.on('error', reject);
+    });
+
+    await globalClient.sendImage(
+      numeroCliente,
+      imagePath,
+      'producto.jpg'
+    );
+
+    fs.unlinkSync(imagePath); // Borra el archivo temporal
+  } catch (error) {
+    console.error('❌ Error al enviar imagen:', error.message);
   }
-
-  // Si hay varios, no se manda imagen y se listan
-  return productos.map(p => `🛒 *${p.nombre}* - $${p.precio}`).join('\n');
 }
 
+
+    return `🛒 *${p.nombre}* - $${p.precio}`;
+  }
+
+  return productos.map(p => `🛒 ${p.nombre} - $${p.precio}`).join('\n');
+}
+
+// Definición para GPT
 const functions = [
   {
     name: "buscarProductoPorNombre",
@@ -63,6 +89,7 @@ const functions = [
   },
 ];
 
+// Inicia el bot
 wppconnect.create({
   session: 'ganesha-session',
   catchQR: (base64QR, asciiQR) => {
@@ -73,7 +100,8 @@ wppconnect.create({
     console.log('Estado de la sesión:', statusSession);
   },
   headless: true,
-}).then((client) => start(client)).catch((error) => console.error(error));
+}).then((client) => start(client))
+  .catch((error) => console.error(error));
 
 async function start(client) {
   globalClient = client;
@@ -87,7 +115,7 @@ async function start(client) {
         {
           role: 'system',
           content: 'Eres un vendedor amable que solo responde sobre productos del catálogo.'
-        }
+        },
       ];
       sesiones[numeroCliente].carrito = [];
       sesiones[numeroCliente].ultimoProductoMostrado = null;
@@ -97,27 +125,44 @@ async function start(client) {
 
     try {
       const respuesta = await openai.chat.completions.create({
-        model: "gpt-4-1106-preview",
+        model: 'gpt-4-1106-preview',
         messages: sesiones[numeroCliente],
         functions,
-        function_call: "auto",
+        function_call: 'auto'
       });
 
-      const respuestaGPT = respuesta.choices[0].message;
+      const mensajeGPT = respuesta.choices[0].message;
 
-      if (respuestaGPT.function_call) {
-        const datos = JSON.parse(respuestaGPT.function_call.arguments);
-        const resultado = await buscarProductoPorNombre(datos.nombre, numeroCliente);
-        await client.sendText(numeroCliente, resultado);
-        return;
+      if (mensajeGPT.function_call) {
+        const llamada = mensajeGPT.function_call;
+        const nombreFuncion = llamada.name;
+        const args = JSON.parse(llamada.arguments);
+
+        let resultadoFuncion = '';
+        if (nombreFuncion === 'buscarProductoPorNombre') {
+          resultadoFuncion = await buscarProductoPorNombre(args.nombre, numeroCliente);
+        }
+
+        const segundaRespuesta = await openai.chat.completions.create({
+          model: 'gpt-4-1106-preview',
+          messages: [
+            ...sesiones[numeroCliente],
+            mensajeGPT,
+            { role: 'function', name: nombreFuncion, content: resultadoFuncion }
+          ]
+        });
+
+        const final = segundaRespuesta.choices[0].message.content;
+        sesiones[numeroCliente].push({ role: 'assistant', content: final });
+        await client.sendText(numeroCliente, final);
+      } else {
+        const respuestaDirecta = mensajeGPT.content;
+        sesiones[numeroCliente].push({ role: 'assistant', content: respuestaDirecta });
+        await client.sendText(numeroCliente, respuestaDirecta);
       }
 
-      if (respuestaGPT.content) {
-        await client.sendText(numeroCliente, respuestaGPT.content);
-        sesiones[numeroCliente].push({ role: 'assistant', content: respuestaGPT.content });
-      }
     } catch (error) {
-      console.error("Error en la conversación:", error);
+      console.error('Error:', error);
       await client.sendText(numeroCliente, 'Ocurrió un error al procesar tu solicitud.');
     }
   });
