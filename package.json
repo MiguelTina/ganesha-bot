@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "@wppconnect-team/wppconnect": "^1.36.4",
+    "axios": "^1.8.4",
     "dotenv": "^16.4.7",
     "mongod": "^2.0.0",
     "mongodb": "^6.15.0",

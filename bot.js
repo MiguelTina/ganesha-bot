@@ -2,6 +2,9 @@ require('dotenv').config();
 const wppconnect = require('@wppconnect-team/wppconnect');
 const { OpenAI } = require('openai');
 const { connectDB, getDB } = require('./db');
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 
 connectDB();
 
@@ -10,8 +13,9 @@ const openai = new OpenAI({
 });
 
 const sesiones = {};
+let globalClient;
 
-// 👉 Función que busca productos por nombre
+// Función que busca productos por nombre
 async function buscarProductoPorNombre(nombre, numeroCliente) {
   const db = getDB();
   const texto = nombre.trim().toLowerCase();
@@ -22,13 +26,52 @@ async function buscarProductoPorNombre(nombre, numeroCliente) {
 
   if (productos.length === 0) return 'No encontré ese producto 😕';
 
-  // Guardar el producto mostrado en la sesión
-  sesiones[numeroCliente].ultimoProductoMostrado = productos[0];
+  if (productos.length === 1) {
+    const p = productos[0];
+    sesiones[numeroCliente].ultimoProductoMostrado = p;
+
+    if (p.imagen) {
+  const axios = require('axios');
+  const fs = require('fs');
+  const path = require('path');
+
+  try {
+    const imagePath = path.join(__dirname, 'temp-image.jpg');
+    const writer = fs.createWriteStream(imagePath);
+
+    const response = await axios({
+      url: p.imagen,
+      method: 'GET',
+      responseType: 'stream',
+    });
+
+    response.data.pipe(writer);
+
+    await new Promise((resolve, reject) => {
+      writer.on('finish', resolve);
+      writer.on('error', reject);
+    });
+
+    await globalClient.sendImage(
+      numeroCliente,
+      imagePath,
+      'producto.jpg'
+    );
+
+    fs.unlinkSync(imagePath); // Borra el archivo temporal
+  } catch (error) {
+    console.error('❌ Error al enviar imagen:', error.message);
+  }
+}
+
+
+    return `🛒 *${p.nombre}* - $${p.precio}`;
+  }
 
   return productos.map(p => `🛒 ${p.nombre} - $${p.precio}`).join('\n');
 }
 
-// 👉 Funciones disponibles para GPT
+// Definición para GPT
 const functions = [
   {
     name: "buscarProductoPorNombre",
@@ -43,136 +86,84 @@ const functions = [
       },
       required: ["nombre"],
     },
-  }
+  },
 ];
 
-wppconnect
-  .create({
-    session: 'ganesha-session',
-    catchQR: (base64QR, asciiQR) => {
-      console.log('Escanea este QR con tu celular:');
-      console.log(asciiQR);
-    },
-    statusFind: (statusSession) => {
-      console.log('Estado de la sesión:', statusSession);
-    },
-    headless: true,
-  })
-  .then((client) => start(client))
+// Inicia el bot
+wppconnect.create({
+  session: 'ganesha-session',
+  catchQR: (base64QR, asciiQR) => {
+    console.log('Escanea este QR con tu celular:');
+    console.log(asciiQR);
+  },
+  statusFind: (statusSession) => {
+    console.log('Estado de la sesión:', statusSession);
+  },
+  headless: true,
+}).then((client) => start(client))
   .catch((error) => console.error(error));
 
 async function start(client) {
+  globalClient = client;
   client.onMessage(async (message) => {
     if (!message.body || message.isGroupMsg) return;
 
     const numeroCliente = message.from;
-    const texto = message.body.toLowerCase();
 
     if (!sesiones[numeroCliente]) {
       sesiones[numeroCliente] = [
         {
           role: 'system',
-          content: 'Eres un vendedor amable que solo responde sobre productos del catálogo.',
+          content: 'Eres un vendedor amable que solo responde sobre productos del catálogo.'
         },
       ];
       sesiones[numeroCliente].carrito = [];
       sesiones[numeroCliente].ultimoProductoMostrado = null;
     }
 
-    // 👉 Lógica para agregar producto al carrito
-    if (
-      texto.includes("agregar") ||
-      texto.includes("añadir") ||
-      texto.includes("lo puedes agregar") ||
-      texto.includes("puedes añadir") ||
-      texto.includes("me interesa") ||
-      texto.includes("añádelo")
-    ) {
-      const ultimo = sesiones[numeroCliente].ultimoProductoMostrado;
-
-      if (ultimo) {
-        sesiones[numeroCliente].carrito.push(ultimo);
-        await client.sendText(numeroCliente, `✅ Agregué *${ultimo.nombre}* al carrito.`);
-      } else {
-        await client.sendText(numeroCliente, "No sé qué producto agregar. ¿Podrías repetir el nombre?");
-      }
-      return;
-    }
-
-    // 👉 Lógica para ver el carrito
-    if (
-      texto.includes("ver carrito") ||
-      texto.includes("mostrar carrito") ||
-      texto.includes("mi carrito")
-    ) {
-      const carrito = sesiones[numeroCliente].carrito;
-
-      if (!carrito || carrito.length === 0) {
-        await client.sendText(numeroCliente, "🛒 Tu carrito está vacío.");
-      } else {
-        let total = 0;
-        const resumen = carrito.map((p, i) => {
-          total += p.precio;
-          return `${i + 1}. ${p.nombre} - $${p.precio}`;
-        }).join('\n');
-
-        const mensaje = `🧾 *Resumen de tu carrito:*\n\n${resumen}\n\n💰 Total: $${total}`;
-        await client.sendText(numeroCliente, mensaje);
-      }
-      return;
-    }
-
     sesiones[numeroCliente].push({ role: 'user', content: message.body });
 
     try {
       const respuesta = await openai.chat.completions.create({
-        model: "gpt-4-turbo",
+        model: 'gpt-4-1106-preview',
         messages: sesiones[numeroCliente],
         functions,
-        function_call: "auto",
+        function_call: 'auto'
       });
 
       const mensajeGPT = respuesta.choices[0].message;
-      console.log("➡️ Mensaje GPT:", mensajeGPT);
 
       if (mensajeGPT.function_call) {
         const llamada = mensajeGPT.function_call;
         const nombreFuncion = llamada.name;
         const args = JSON.parse(llamada.arguments);
 
-        console.log("📞 GPT pidió llamar a:", nombreFuncion);
-        console.log("🧾 Parámetros:", args);
-
         let resultadoFuncion = '';
-
-        if (nombreFuncion === "buscarProductoPorNombre") {
+        if (nombreFuncion === 'buscarProductoPorNombre') {
           resultadoFuncion = await buscarProductoPorNombre(args.nombre, numeroCliente);
-          console.log("🔍 Resultado de la búsqueda:", resultadoFuncion);
         }
 
         const segundaRespuesta = await openai.chat.completions.create({
-          model: "gpt-4-turbo",
+          model: 'gpt-4-1106-preview',
           messages: [
             ...sesiones[numeroCliente],
             mensajeGPT,
-            { role: "function", name: nombreFuncion, content: resultadoFuncion },
-          ],
+            { role: 'function', name: nombreFuncion, content: resultadoFuncion }
+          ]
         });
 
-        const textoFinal = segundaRespuesta.choices[0].message.content;
-        console.log("🤖 Respuesta final de GPT:", textoFinal);
-
-        await client.sendText(numeroCliente, textoFinal);
-        sesiones[numeroCliente].push({ role: 'assistant', content: textoFinal });
-
+        const final = segundaRespuesta.choices[0].message.content;
+        sesiones[numeroCliente].push({ role: 'assistant', content: final });
+        await client.sendText(numeroCliente, final);
       } else {
-        await client.sendText(numeroCliente, mensajeGPT.content);
-        sesiones[numeroCliente].push({ role: 'assistant', content: mensajeGPT.content });
+        const respuestaDirecta = mensajeGPT.content;
+        sesiones[numeroCliente].push({ role: 'assistant', content: respuestaDirecta });
+        await client.sendText(numeroCliente, respuestaDirecta);
       }
 
     } catch (error) {
-      console.error("❌ Error en el bot:", error);
-      await client.sendText(numeroCliente, "Ocurrió un error, intenta de nuevo más tarde.");
+      console.error('Error:', error);
+      await client.sendText(numeroCliente, 'Ocurrió un error al procesar tu solicitud.');
     }
   });
 }
