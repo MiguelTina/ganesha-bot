@@ -1,21 +1,21 @@
-2025/04/23-13:07:48.678 3e9a Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2025/04/23-13:07:48.682 3e9a Recovering log #259
-2025/04/23-13:07:48.737 3e9a Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000259.log 
-2025/04/23-13:07:49.874 3e9c Level-0 table #268: started
-2025/04/23-13:07:49.915 3e9c Level-0 table #268: 585440 bytes OK
-2025/04/23-13:07:49.917 3e9c Delete type=0 #259
-2025/04/23-13:07:49.921 3e9a Manual compaction at level-0 from '\x00?\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00@\x00\x00\x00' @ 0 : 0; will stop at (end)
-2025/04/23-13:07:55.318 3e9b Compacting 1@1 + 5@2 files
-2025/04/23-13:07:55.599 3e9b Generated table #269@1: 32887 keys, 2191276 bytes
-2025/04/23-13:07:55.767 3e9b Generated table #270@1: 15050 keys, 2160950 bytes
-2025/04/23-13:07:56.005 3e9b Generated table #271@1: 89926 keys, 2236259 bytes
-2025/04/23-13:07:56.232 3e9b Generated table #272@1: 115908 keys, 2270141 bytes
-2025/04/23-13:07:56.277 3e9b Generated table #273@1: 13988 keys, 274539 bytes
-2025/04/23-13:07:56.278 3e9b Compacted 1@1 + 5@2 files => 9133165 bytes
-2025/04/23-13:07:56.279 3e9b compacted to: files[ 0 0 5 0 0 0 0 ]
-2025/04/23-13:07:56.280 3e9b Delete type=2 #263
-2025/04/23-13:07:56.280 3e9b Delete type=2 #262
-2025/04/23-13:07:56.280 3e9b Delete type=2 #264
-2025/04/23-13:07:56.281 3e9b Delete type=2 #261
-2025/04/23-13:07:56.281 3e9b Delete type=2 #268
-2025/04/23-13:07:56.283 3e9b Delete type=2 #265
+2025/04/23-17:14:30.603 5d1d Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/04/23-17:14:30.604 5d1d Recovering log #307
+2025/04/23-17:14:30.623 5d1d Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000307.log 
+2025/04/23-17:14:32.870 5d26 Level-0 table #316: started
+2025/04/23-17:14:32.920 5d26 Level-0 table #316: 244235 bytes OK
+2025/04/23-17:14:32.923 5d26 Delete type=0 #307
+2025/04/23-17:14:32.924 5d1c Manual compaction at level-0 from '\x00E\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00F\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/04/23-17:14:36.949 5d1d Compacting 1@1 + 5@2 files
+2025/04/23-17:14:37.180 5d1d Generated table #317@1: 42796 keys, 2208471 bytes
+2025/04/23-17:14:37.323 5d1d Generated table #318@1: 15459 keys, 2165391 bytes
+2025/04/23-17:14:37.786 5d1d Generated table #319@1: 68973 keys, 2210010 bytes
+2025/04/23-17:14:38.439 5d1d Generated table #320@1: 115912 keys, 2270835 bytes
+2025/04/23-17:14:38.553 5d1d Generated table #321@1: 40367 keys, 792033 bytes
+2025/04/23-17:14:38.554 5d1d Compacted 1@1 + 5@2 files => 9646740 bytes
+2025/04/23-17:14:38.559 5d1d compacted to: files[ 0 0 5 0 0 0 0 ]
+2025/04/23-17:14:38.560 5d1d Delete type=2 #309
+2025/04/23-17:14:38.560 5d1d Delete type=2 #312
+2025/04/23-17:14:38.560 5d1d Delete type=2 #316
+2025/04/23-17:14:38.560 5d1d Delete type=2 #311
+2025/04/23-17:14:38.560 5d1d Delete type=2 #313
+2025/04/23-17:14:38.560 5d1d Delete type=2 #310

@@ -17,10 +17,12 @@ let globalClient;
 
 async function buscarProductoPorNombre(nombre, numeroCliente) {
   const db = getDB();
-  const texto = nombre.trim().toLowerCase();
+
+  const palabrasClave = nombre.trim().toLowerCase().split(' ').filter(p => p.length > 2);
+  const regex = palabrasClave.map(p => `(?=.*${p})`).join('') + '.*';
 
   const productos = await db.collection('productos-demo').find({
-    nombre: { $regex: texto, $options: 'i' },
+    nombre: { $regex: new RegExp(regex, 'i') },
   }).toArray();
 
   if (productos.length === 0) return 'No encontré ese producto 😕';
@@ -47,12 +49,7 @@ async function buscarProductoPorNombre(nombre, numeroCliente) {
           writer.on('error', reject);
         });
 
-        await globalClient.sendImage(
-          numeroCliente,
-          imagePath,
-          'producto.jpg'
-        );
-
+        await globalClient.sendImage(numeroCliente, imagePath, 'producto.jpg');
         fs.unlinkSync(imagePath);
       } catch (error) {
         console.error('❌ Error al enviar imagen:', error.message);
@@ -114,7 +111,6 @@ async function start(client) {
       sesiones[numeroCliente].ultimoProductoMostrado = null;
     }
 
-    // Manejo personalizado (sin pasar a GPT)
     if (
       texto.includes('agrega') ||
       texto.includes('al carrito') ||
@@ -125,7 +121,6 @@ async function start(client) {
       texto.includes('confirmo mi pedido') ||
       texto.includes('sería todo')
     ) {
-      // Agregar producto
       if (texto.includes('agrega') || texto.includes('al carrito')) {
         const ultimoProducto = sesiones[numeroCliente].ultimoProductoMostrado;
         if (ultimoProducto) {
@@ -137,7 +132,6 @@ async function start(client) {
         return;
       }
 
-      // Ver carrito
       if (texto.includes('ver carrito')) {
         const carrito = sesiones[numeroCliente].carrito;
         if (!carrito.length) {
@@ -150,7 +144,6 @@ async function start(client) {
         return;
       }
 
-      // Finalizar compra
       if (
         texto.includes('finalizar compra') ||
         texto.includes('comprar') ||
@@ -184,10 +177,9 @@ async function start(client) {
         return;
       }
 
-      return; // No pasar a GPT
+      return;
     }
 
-    // GPT entra solo si no es mensaje de carrito
     sesiones[numeroCliente].push({ role: 'user', content: message.body });
 
     try {
@@ -225,9 +217,22 @@ async function start(client) {
       } else {
         const respuestaDirecta = mensajeGPT.content;
         sesiones[numeroCliente].push({ role: 'assistant', content: respuestaDirecta });
+
+        // Buscar si menciona nombre entre asteriscos
+        const posibleNombre = respuestaDirecta.match(/\*(.*?)\*/);
+        if (posibleNombre) {
+          const nombreDetectado = posibleNombre[1].trim();
+          const producto = await getDB().collection('productos-demo').findOne({
+            nombre: { $regex: new RegExp(nombreDetectado, 'i') }
+          });
+          if (producto) {
+            sesiones[numeroCliente].ultimoProductoMostrado = producto;
+            console.log(`📦 Producto detectado: ${producto.nombre}`);
+          }
+        }
+
         await client.sendText(numeroCliente, respuestaDirecta);
       }
-
     } catch (error) {
       console.error('Error:', error);
       await client.sendText(numeroCliente, 'Ocurrió un error al procesar tu solicitud.');
