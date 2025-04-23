@@ -15,7 +15,6 @@ const openai = new OpenAI({
 const sesiones = {};
 let globalClient;
 
-// Función que busca productos por nombre
 async function buscarProductoPorNombre(nombre, numeroCliente) {
   const db = getDB();
   const texto = nombre.trim().toLowerCase();
@@ -31,39 +30,34 @@ async function buscarProductoPorNombre(nombre, numeroCliente) {
     sesiones[numeroCliente].ultimoProductoMostrado = p;
 
     if (p.imagen) {
-  const axios = require('axios');
-  const fs = require('fs');
-  const path = require('path');
+      try {
+        const imagePath = path.join(__dirname, 'temp-image.jpg');
+        const writer = fs.createWriteStream(imagePath);
 
-  try {
-    const imagePath = path.join(__dirname, 'temp-image.jpg');
-    const writer = fs.createWriteStream(imagePath);
+        const response = await axios({
+          url: p.imagen,
+          method: 'GET',
+          responseType: 'stream',
+        });
 
-    const response = await axios({
-      url: p.imagen,
-      method: 'GET',
-      responseType: 'stream',
-    });
+        response.data.pipe(writer);
 
-    response.data.pipe(writer);
+        await new Promise((resolve, reject) => {
+          writer.on('finish', resolve);
+          writer.on('error', reject);
+        });
 
-    await new Promise((resolve, reject) => {
-      writer.on('finish', resolve);
-      writer.on('error', reject);
-    });
+        await globalClient.sendImage(
+          numeroCliente,
+          imagePath,
+          'producto.jpg'
+        );
 
-    await globalClient.sendImage(
-      numeroCliente,
-      imagePath,
-      'producto.jpg'
-    );
-
-    fs.unlinkSync(imagePath); // Borra el archivo temporal
-  } catch (error) {
-    console.error('❌ Error al enviar imagen:', error.message);
-  }
-}
-
+        fs.unlinkSync(imagePath);
+      } catch (error) {
+        console.error('❌ Error al enviar imagen:', error.message);
+      }
+    }
 
     return `🛒 *${p.nombre}* - $${p.precio}`;
   }
@@ -71,7 +65,6 @@ async function buscarProductoPorNombre(nombre, numeroCliente) {
   return productos.map(p => `🛒 ${p.nombre} - $${p.precio}`).join('\n');
 }
 
-// Definición para GPT
 const functions = [
   {
     name: "buscarProductoPorNombre",
@@ -89,7 +82,6 @@ const functions = [
   },
 ];
 
-// Inicia el bot
 wppconnect.create({
   session: 'ganesha-session',
   catchQR: (base64QR, asciiQR) => {
@@ -100,15 +92,16 @@ wppconnect.create({
     console.log('Estado de la sesión:', statusSession);
   },
   headless: true,
-}).then((client) => start(client))
-  .catch((error) => console.error(error));
+}).then((client) => start(client)).catch((error) => console.error(error));
 
 async function start(client) {
   globalClient = client;
+
   client.onMessage(async (message) => {
     if (!message.body || message.isGroupMsg) return;
 
     const numeroCliente = message.from;
+    const texto = message.body.toLowerCase();
 
     if (!sesiones[numeroCliente]) {
       sesiones[numeroCliente] = [
@@ -121,6 +114,80 @@ async function start(client) {
       sesiones[numeroCliente].ultimoProductoMostrado = null;
     }
 
+    // Manejo personalizado (sin pasar a GPT)
+    if (
+      texto.includes('agrega') ||
+      texto.includes('al carrito') ||
+      texto.includes('ver carrito') ||
+      texto.includes('comprar') ||
+      texto.includes('finalizar compra') ||
+      texto.includes('proceder a la compra') ||
+      texto.includes('confirmo mi pedido') ||
+      texto.includes('sería todo')
+    ) {
+      // Agregar producto
+      if (texto.includes('agrega') || texto.includes('al carrito')) {
+        const ultimoProducto = sesiones[numeroCliente].ultimoProductoMostrado;
+        if (ultimoProducto) {
+          sesiones[numeroCliente].carrito.push(ultimoProducto);
+          await client.sendText(numeroCliente, `✅ *${ultimoProducto.nombre}* fue agregado al carrito.`);
+        } else {
+          await client.sendText(numeroCliente, '❌ No tengo un producto reciente para agregar. Búscalo primero.');
+        }
+        return;
+      }
+
+      // Ver carrito
+      if (texto.includes('ver carrito')) {
+        const carrito = sesiones[numeroCliente].carrito;
+        if (!carrito.length) {
+          await client.sendText(numeroCliente, '🛒 Tu carrito está vacío.');
+        } else {
+          const resumen = carrito.map((p, i) => `${i + 1}. ${p.nombre} - $${p.precio}`).join('\n');
+          const total = carrito.reduce((sum, p) => sum + p.precio, 0);
+          await client.sendText(numeroCliente, `🛍️ Tu carrito:\n${resumen}\n\n💰 Total: $${total}`);
+        }
+        return;
+      }
+
+      // Finalizar compra
+      if (
+        texto.includes('finalizar compra') ||
+        texto.includes('comprar') ||
+        texto.includes('sería todo') ||
+        texto.includes('proceder a la compra') ||
+        texto.includes('confirmo mi pedido')
+      ) {
+        const carrito = sesiones[numeroCliente].carrito;
+        if (!carrito.length) {
+          await client.sendText(numeroCliente, 'Tu carrito está vacío. Agrega productos antes de comprar.');
+          return;
+        }
+
+        const resumen = carrito.map(p => `• ${p.nombre} - $${p.precio}`).join('\n');
+        const total = carrito.reduce((sum, p) => sum + p.precio, 0);
+
+        try {
+          await axios.post('https://tuservidor.com/api/ventas', {
+            cliente: numeroCliente,
+            productos: carrito,
+            total,
+          });
+
+          await client.sendText(numeroCliente, `✅ Tu cotización fue enviada al área de ventas. Un asesor te contactará pronto.\n\n🛒 *Resumen del Pedido:*\n${resumen}\n\n💰 *Total:* $${total}`);
+        } catch (error) {
+          console.error('❌ Error al enviar al CRM:', error.message);
+          await client.sendText(numeroCliente, 'Ocurrió un error al enviar tu pedido. Intenta más tarde.');
+        }
+
+        sesiones[numeroCliente].carrito = [];
+        return;
+      }
+
+      return; // No pasar a GPT
+    }
+
+    // GPT entra solo si no es mensaje de carrito
     sesiones[numeroCliente].push({ role: 'user', content: message.body });
 
     try {

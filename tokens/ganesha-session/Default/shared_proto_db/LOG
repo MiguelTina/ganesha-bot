@@ -1,3 +1,6 @@
-2025/04/22-17:48:30.237 69db Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/shared_proto_db/MANIFEST-000001
-2025/04/22-17:48:30.242 69db Recovering log #3
-2025/04/22-17:48:30.253 69db Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/shared_proto_db/000003.log 
+2025/04/23-13:32:35.971 42ef Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/shared_proto_db/MANIFEST-000001
+2025/04/23-13:32:35.984 42ef Recovering log #3
+2025/04/23-13:32:36.017 42ef Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/shared_proto_db/000003.log 
+2025/04/23-13:32:36.191 42ef Level-0 table #5: started
+2025/04/23-13:32:36.205 42ef Level-0 table #5: 71356 bytes OK
+2025/04/23-13:32:36.207 42ef Delete type=0 #3
