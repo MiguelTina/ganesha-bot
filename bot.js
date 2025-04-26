@@ -111,6 +111,7 @@ async function start(client) {
       sesiones[numeroCliente].ultimoProductoMostrado = null;
     }
 
+    // Gestión del carrito y compras
     if (
       texto.includes('agrega') ||
       texto.includes('al carrito') ||
@@ -157,17 +158,19 @@ async function start(client) {
           return;
         }
 
+        const nombre = message.notifyName;
+        const telefono = numeroCliente.replace('@c.us', '');
+        const productosTexto = carrito.map(p => p.nombre).join(', ');
         const resumen = carrito.map(p => `• ${p.nombre} - $${p.precio}`).join('\n');
-        const total = carrito.reduce((sum, p) => sum + p.precio, 0);
 
         try {
-          await axios.post('https://tuservidor.com/api/ventas', {
-            cliente: numeroCliente,
-            productos: carrito,
-            total,
+          await axios.post('http://localhost:4000/api/leads', {
+            nombre,
+            telefono,
+            producto: productosTexto
           });
 
-          await client.sendText(numeroCliente, `✅ Tu cotización fue enviada al área de ventas. Un asesor te contactará pronto.\n\n🛒 *Resumen del Pedido:*\n${resumen}\n\n💰 *Total:* $${total}`);
+          await client.sendText(numeroCliente, `✅ Tu cotización fue enviada al área de ventas. Un asesor te contactará pronto.\n\n🛒 *Resumen del Pedido:*\n${resumen}`);
         } catch (error) {
           console.error('❌ Error al enviar al CRM:', error.message);
           await client.sendText(numeroCliente, 'Ocurrió un error al enviar tu pedido. Intenta más tarde.');
@@ -176,10 +179,10 @@ async function start(client) {
         sesiones[numeroCliente].carrito = [];
         return;
       }
-
-      return;
+      return; // Si es una acción de carrito pero no entró en ningún caso específico
     }
 
+    // Procesamiento de mensajes con OpenAI
     sesiones[numeroCliente].push({ role: 'user', content: message.body });
 
     try {

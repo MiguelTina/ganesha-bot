@@ -11,7 +11,7 @@
   "description": "Ganesha Bot es un chatbot inteligente de ventas para WhatsApp, conectado a un CRM propio basado en MongoDB. Está diseñado para manejar múltiples cuentas y productos, interactuar de manera natural y persuasiva (inspirado en técnicas de Brian Tracy), cotizar, cerrar ventas y notificar automáticamente al CRM.",
   "dependencies": {
     "@wppconnect-team/wppconnect": "^1.36.4",
-    "axios": "^1.8.4",
+    "axios": "^1.9.0",
     "dotenv": "^16.5.0",
     "mongod": "^2.0.0",
     "mongodb": "^6.15.0",

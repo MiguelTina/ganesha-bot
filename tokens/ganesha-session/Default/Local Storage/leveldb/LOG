@@ -1,3 +1,9 @@
-2025/04/23-17:21:42.366 4 Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/Local Storage/leveldb/MANIFEST-000001
-2025/04/23-17:21:42.396 4 Recovering log #20
-2025/04/23-17:21:42.399 4 Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/Local Storage/leveldb/000020.log 
+2025/04/26-09:44:06.978 4 Reusing MANIFEST /home/tina/ganesha-bot/tokens/ganesha-session/Default/Local Storage/leveldb/MANIFEST-000001
+2025/04/26-09:44:06.990 4 Recovering log #20
+2025/04/26-09:44:06.994 4 Reusing old log /home/tina/ganesha-bot/tokens/ganesha-session/Default/Local Storage/leveldb/000020.log 
+2025/04/26-10:01:09.354 5 Level-0 table #24: started
+2025/04/26-10:01:09.360 5 Level-0 table #24: 14238 bytes OK
+2025/04/26-10:01:09.364 5 Delete type=0 #20
+2025/04/26-11:46:09.356 4 Level-0 table #26: started
+2025/04/26-11:46:09.364 4 Level-0 table #26: 12234 bytes OK
+2025/04/26-11:46:09.372 4 Delete type=0 #23
